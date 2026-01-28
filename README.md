@@ -3,55 +3,93 @@
 這是一個用於 AI 協作開發的 Prompt 規則管理庫。
 透過分層疊加 (Layered Stacking) 的方式，讓不同的 AI 工具 (Claude, Gemini) 都能載入統一的開發規範。
 
-## 支援的 AI 客戶端
+## 🚀 快速開始
 
-請進入對應資料夾查看安裝說明：
+### 1. 安裝客戶端
 
-*   **[Gemini Client](./clients/gemini/README.md)** (Windows PowerShell)
-*   **[Claude Client](./clients/claude/README.md)** (Windows / Mac / Linux)
+**Windows (PowerShell)**:
+```powershell
+cd clients\gemini
+.\install.ps1
+```
 
-## 核心架構
+**Mac / Linux**:
+```bash
+cd clients/gemini
+./install.sh
+```
+
+### 2. 使用指令
+
+安裝後，您將擁有以下指令：
+
+| 指令 | 說明 | 適用情境 |
+|------|------|----------|
+| **`gprompt`** | **(推薦)** 載入專案 Prompt 並啟動 AI | 開發特定專案、需要遵循規範時 |
+| **`gemini`** | 啟動原生 Gemini CLI (不載入專案規則) | 閒聊、簡單問答、非開發任務 |
+
+**首次在專案目錄執行 `gprompt` 時**，系統會跳出選單讓您選擇：
+1.  **語言** (e.g., .NET, Python)
+2.  **專案擴展** (e.g., DaChan, MyProject)
+3.  **功能模組** (e.g., MongoDB, Redis)
+
+設定完成後會產生 `.geminirules` 檔，之後該目錄就會自動套用這些規則。
+
+---
+
+## 📂 核心架構
 
 Prompt 規則統一存放於此專案根目錄，供所有客戶端共用。
 
 ```
 .
 ├── common/                     # Level 1: 通用規則 (Clean Code, 協作規範)
-│   └── collaboration.md
+│   └── collaboration.md        # 所有專案都會載入這份
 │
 ├── languages/                  # Level 2: 語言基礎規範
 │   ├── dotnet/
-│   │   ├── base.md
-│   │   └── extensions/         # Level 3: 專案特定擴展 (架構, 私有庫)
-│   │       └── dachan.md
+│   │   ├── base.md             # .NET 基礎規範
+│   │   └── extensions/         # Level 3: 專案特定擴展
+│   │       └── dachan.md       # (選用) 大成專案特定架構
 │   └── python/
 │       └── ...
 │
-└── modules/                    # Level 4: 選用模組 (DB, 工具庫)
-    └── mongodb.md
+└── modules/                    # Level 4: 選用模組
+    └── mongodb.md              # (選用) DB 設計規範
 ```
 
-## 組合邏輯
+---
 
-當您使用客戶端工具 (如 `gemini` 或 `claude`) 選擇 Prompt 時，系統會依照以下順序組合檔案：
+## 🛠 如何新增/修改 Prompt
 
-1.  **Metadata**: 自動生成的標頭 (時間、配置資訊)。
-2.  **Common**: 載入 `common/` 下的所有 `.md` 檔案。
-3.  **Language Base**: 載入 `languages/{selected_lang}/base.md`。
-4.  **Extension (Optional)**: 載入 `languages/{selected_lang}/extensions/{selected_ext}.md`。
-    *   支援變數替換 (如 `{{DACHAN_COMMONUTILS_PATH}}`)。
-5.  **Modules (Optional)**: 載入 `modules/{selected_mod}.md`。
+### 1. 新增程式語言 (Language)
+建立資料夾 `languages/<語言名稱>/` 並新增 `base.md`。
 
-## 如何新增規則
+*   **路徑範例**: `languages/golang/base.md`
+*   **內容建議**: 命名慣例、目錄結構、推薦的 Libraries。
 
-### 新增語言 (Language)
-1. 在 `languages/` 下建立新資料夾 (如 `golang`)。
-2. 建立 `base.md`，定義該語言的基礎開發規範。
+### 2. 新增專案擴展 (Extension)
+當某個專案有特定的架構要求 (如 Clean Architecture) 或私有套件引用規則時。
 
-### 新增擴展 (Extension)
-1. 在語言資料夾下的 `extensions/` 目錄中建立 `.md` 檔案 (如 `dachan.md`)。
-2. 若需要動態路徑，可使用 `{{VAR_NAME}}` 佔位符，並在客戶端的 `loader` 腳本中設定對應邏輯。
+*   **路徑範例**: `languages/dotnet/extensions/my-app.md`
+*   **支援動態變數**:
+    可以在 Markdown 中使用 `{{VAR_NAME}}`。
+    *   *Markdown 寫法*: `私有庫路徑: {{MY_LIB_PATH}}`
+    *   *設定方式*: 首次載入時，Loader 會提示輸入該變數的值，並儲存在 `~/.gemini-prompts-config`。
+    *   *(進階使用者需修改 `loader.ps1` / `loader.sh` 來註冊新的變數讀取邏輯)*
 
-### 新增模組 (Module)
-1. 在 `modules/` 下建立 `.md` 檔案。
-2. 模組應盡量設計為「跨語言通用」或「技術特定但語言無關」的規範 (如 SQL 命名規範)。
+### 3. 新增功能模組 (Module)
+針對特定技術棧的規範，可跨專案複用。
+
+*   **路徑範例**: `modules/docker.md`
+*   **內容建議**: Dockerfile 撰寫規範、Docker Compose 命名規則。
+
+---
+
+## ⚙️ 進階指令
+
+| PowerShell 指令 | 說明 |
+|-----------------|------|
+| `Show-PromptStatus` | 查看當前目錄載入了哪些規則 |
+| `Clear-LocalPrompt` | 刪除當前目錄的 `.geminirules` (以便重新選擇) |
+| `Set-GlobalGeminiPrompt` | 設定全域預設 Prompt (不推薦，建議使用 gprompt) |

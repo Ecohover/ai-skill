@@ -1,8 +1,8 @@
-# Gemini Code Prompt 載入腳本
-# 版本：v4.1 (支援擴展設定)
+# Gemini Code Prompt Loader Script
+# Version: v4.1 (Extension Support)
 
 # ============================================
-# 配置區（動態路徑）
+# Configuration Area (Dynamic Paths)
 # ============================================
 if ($env:GEMINI_PROMPTS_PATH) {
     $PROMPTS_BASE_PATH = $env:GEMINI_PROMPTS_PATH
@@ -10,14 +10,21 @@ if ($env:GEMINI_PROMPTS_PATH) {
     $PROMPTS_BASE_PATH = (Resolve-Path "$PSScriptRoot\..\..").Path
 }
 
-# 設定檔路徑
+# Config file path
 $script:CONFIG_FILE = Join-Path $env:USERPROFILE ".gemini-prompts-config"
 
-# 儲存原生 gemini 指令路徑
-$script:GEMINI_NATIVE = (Get-Command gemini -CommandType Application -ErrorAction SilentlyContinue).Source
+# Store native gemini command path
+$nativeCommands = Get-Command gemini -CommandType Application -ErrorAction SilentlyContinue
+if ($nativeCommands -is [array]) {
+    $script:GEMINI_NATIVE = $nativeCommands[0].Source
+} elseif ($nativeCommands) {
+    $script:GEMINI_NATIVE = $nativeCommands.Source
+} else {
+    $script:GEMINI_NATIVE = $null
+}
 
 # ============================================
-# 設定檔管理
+# Config Management
 # ============================================
 function Get-PromptConfig {
     param([string]$Key)
@@ -63,21 +70,21 @@ function Set-PromptConfig {
 function Get-ExtensionConfig {
     param([string]$Extension)
 
-    # 根據 extension 名稱取得需要的設定
+    # Get config based on extension name
     switch ($Extension.ToLower()) {
         "dachan" {
             $commonUtilsPath = Get-PromptConfig -Key "DACHAN_COMMONUTILS_PATH"
 
             if ([string]::IsNullOrEmpty($commonUtilsPath)) {
                 Write-Host ""
-                Write-Host "=== Dachan 擴展設定 ===" -ForegroundColor Cyan
-                Write-Host "首次使用需要設定 CommonUtils 專案路徑" -ForegroundColor Yellow
+                Write-Host "=== Dachan Extension Setup ===" -ForegroundColor Cyan
+                Write-Host "First time setup: CommonUtils project path is required." -ForegroundColor Yellow
                 Write-Host ""
-                $commonUtilsPath = Read-Host "請輸入 CommonUtils 專案路徑"
+                $commonUtilsPath = Read-Host "Enter CommonUtils Project Path"
 
                 if (-not [string]::IsNullOrEmpty($commonUtilsPath)) {
                     Set-PromptConfig -Key "DACHAN_COMMONUTILS_PATH" -Value $commonUtilsPath
-                    Write-Host "已儲存設定" -ForegroundColor Green
+                    Write-Host "Config saved." -ForegroundColor Green
                 }
             }
 
@@ -92,61 +99,61 @@ function Get-ExtensionConfig {
 }
 
 # ============================================
-# 主函數：覆蓋 gemini 指令
+# Main Function: gprompt (Gemini Prompt Loader)
 # ============================================
-function gemini {
+function gprompt {
     param(
         [Parameter(Position=0, ValueFromRemainingArguments=$true)]
         [string[]]$Arguments
     )
 
-    # 檢查是否有 --skip 或 -s 參數
-    if ($Arguments -contains "--skip" -or $Arguments -contains "-s") {
-        $filteredArgs = $Arguments | Where-Object { $_ -ne "--skip" -and $_ -ne "-s" }
-        Write-Host "啟動原生 Gemini..." -ForegroundColor Gray
-        if ($script:GEMINI_NATIVE) {
-            & $script:GEMINI_NATIVE @filteredArgs
-        } else {
-            Write-Host "錯誤：找不到原生 gemini 指令" -ForegroundColor Red
-        }
-        return
-    }
-
-    # 檢查是否有 --prompt 或 -p 參數（強制選擇 prompt）
-    $forcePrompt = $Arguments -contains "--prompt" -or $Arguments -contains "-p"
-    if ($forcePrompt) {
-        $Arguments = $Arguments | Where-Object { $_ -ne "--prompt" -and $_ -ne "-p" }
-    }
-
-    # 檢查本地是否已有 .geminirules
+    # Check local rules
     $localRules = Join-Path (Get-Location) ".geminirules"
     $hasLocalRules = Test-Path $localRules
 
-    # 檢查全域是否已有設定
+    # Check global rules
     $globalRules = Join-Path $env:USERPROFILE ".gemini\GEMINI.md"
     $hasGlobalRules = Test-Path $globalRules
 
-    # 決定是否需要選擇 prompt
-    if ($forcePrompt -or (-not $hasLocalRules -and -not $hasGlobalRules)) {
-        # 詢問用戶
+    # Check Always Ask config
+    $alwaysAsk = (Get-PromptConfig -Key "ALWAYS_ASK_PROMPT") -eq "true"
+
+    # Decide whether to select prompt
+    # Logic: If Always Ask is ON, OR if Local Rules are MISSING, show the menu.
+    # We want gprompt to be the tool for setting up local rules, so if they don't exist, ask.
+    if ($alwaysAsk -or -not $hasLocalRules) {
+        # Ask user
         Write-Host ""
-        Write-Host "=== Gemini Prompt 設定 ===" -ForegroundColor Cyan
-        Write-Host "  [1] 選擇 Prompt 規則" -ForegroundColor White
-        Write-Host "  [2] 不使用 Prompt（原生模式）" -ForegroundColor White
+        Write-Host "=== Gemini Prompt Setup ===" -ForegroundColor Cyan
+        
+        if ($hasLocalRules) {
+            Write-Host "  [0] Use Local Rules (.geminirules)" -ForegroundColor Green
+        }
+        
+        Write-Host "  [1] Select/Create New Rules" -ForegroundColor White
+        Write-Host "  [2] No Prompt (Native Mode)" -ForegroundColor White
+        
         if ($hasGlobalRules) {
-            Write-Host "  [3] 使用全域設定" -ForegroundColor White
+            Write-Host "  [3] Use Global Config" -ForegroundColor White
         }
         Write-Host ""
 
-        $choice = Read-Host "請選擇"
+        $choice = Read-Host "Select"
 
         switch ($choice) {
+            "0" {
+                if ($hasLocalRules) {
+                    Write-Host "Using Local Rules..." -ForegroundColor Gray
+                } else {
+                    Write-Host "Invalid selection." -ForegroundColor Red
+                    return
+                }
+            }
             "1" {
-                # 互動選擇 prompt
+                # Interactive prompt selection
                 $language = Select-Language
                 if ([string]::IsNullOrEmpty($language)) {
-                    Write-Host "已取消，啟動原生 Gemini..." -ForegroundColor Yellow
-                    if ($script:GEMINI_NATIVE) { & $script:GEMINI_NATIVE @Arguments }
+                    Write-Host "Cancelled." -ForegroundColor Yellow
                     return
                 }
 
@@ -158,74 +165,83 @@ function gemini {
                 Set-Content -Path $localRules -Value $combinedPrompt -Encoding UTF8
 
                 Write-Host ""
-                Write-Host "已載入 Prompt: $language" -ForegroundColor Green
+                Write-Host "Prompt Loaded: $language" -ForegroundColor Green
                 if (-not [string]::IsNullOrEmpty($extension)) {
-                    Write-Host "   擴展: $extension" -ForegroundColor Cyan
+                    Write-Host "   Extension: $extension" -ForegroundColor Cyan
                 }
             }
             "2" {
-                Write-Host "啟動原生 Gemini..." -ForegroundColor Gray
+                Write-Host "Starting native Gemini..." -ForegroundColor Gray
                 if ($script:GEMINI_NATIVE) { & $script:GEMINI_NATIVE @Arguments }
                 return
             }
             "3" {
                 if ($hasGlobalRules) {
-                    Write-Host "使用全域設定..." -ForegroundColor Gray
+                    Write-Host "Using Global Config..." -ForegroundColor Gray
+                    if ($script:GEMINI_NATIVE) { & $script:GEMINI_NATIVE @Arguments }
+                    return
                 } else {
-                    Write-Host "啟動原生 Gemini..." -ForegroundColor Gray
+                    Write-Host "Global config not found." -ForegroundColor Red
+                    return
                 }
-                if ($script:GEMINI_NATIVE) { & $script:GEMINI_NATIVE @Arguments }
-                return
             }
             default {
-                Write-Host "啟動原生 Gemini..." -ForegroundColor Gray
-                if ($script:GEMINI_NATIVE) { & $script:GEMINI_NATIVE @Arguments }
-                return
+                if ($hasLocalRules -and [string]::IsNullOrEmpty($choice)) {
+                     Write-Host "Using Local Rules..." -ForegroundColor Gray
+                } else {
+                    Write-Host "Starting native Gemini..." -ForegroundColor Gray
+                    if ($script:GEMINI_NATIVE) { & $script:GEMINI_NATIVE @Arguments }
+                    return
+                }
             }
         }
     } elseif ($hasLocalRules) {
-        # 顯示目前使用的設定
-        $firstLines = Get-Content $localRules -TotalCount 5 -Encoding UTF8
-        $configLine = $firstLines | Where-Object { $_ -match "^Language:" }
-        if ($configLine) {
-            Write-Host "使用本地 Prompt: $($configLine -replace 'Language:\s*', '')" -ForegroundColor Gray
-        }
+        # Show current config from metadata
+        $metadata = Get-Content $localRules -TotalCount 10 -Encoding UTF8
+        $lang = ($metadata | Where-Object { $_ -match "^Language:" } | Out-String).Trim() -replace "Language:\s*", ""
+        $ext  = ($metadata | Where-Object { $_ -match "^Extension:" } | Out-String).Trim() -replace "Extension:\s*", ""
+        $mods = ($metadata | Where-Object { $_ -match "^Modules:" } | Out-String).Trim() -replace "Modules:\s*", ""
+
+        Write-Host ""
+        Write-Host "=== Loading Local Prompt Context ===" -ForegroundColor Cyan
+        Write-Host "  Language:  $lang" -ForegroundColor White
+        Write-Host "  Extension: $ext" -ForegroundColor White
+        Write-Host "  Modules:   $mods" -ForegroundColor White
+        Write-Host "  Path:      $localRules" -ForegroundColor Gray
+        Write-Host "====================================" -ForegroundColor Cyan
     } elseif ($hasGlobalRules) {
-        Write-Host "使用全域 Prompt 設定" -ForegroundColor Gray
+        Write-Host "Using Global Prompt Config" -ForegroundColor Gray
     }
 
     Write-Host ""
     if ($script:GEMINI_NATIVE) {
         & $script:GEMINI_NATIVE @Arguments
     } else {
-        Write-Host "（未偵測到原生 gemini 指令，Prompt 已生成於目標位置）" -ForegroundColor Yellow
-        if (Test-Path $localRules) {
-            Write-Host "Prompt 路徑: $localRules" -ForegroundColor Gray
-        }
+        Write-Host "Error: Native gemini command not found." -ForegroundColor Red
     }
 }
 
 # ============================================
-# 選擇語言
+# Select Language
 # ============================================
 function Select-Language {
     Write-Host ""
-    Write-Host "=== 選擇開發語言 ===" -ForegroundColor Cyan
+    Write-Host "=== Select Language ===" -ForegroundColor Cyan
 
     $langPath = Join-Path $PROMPTS_BASE_PATH "languages"
     $languages = Get-ChildItem -Path $langPath -Directory | Select-Object -ExpandProperty Name
 
     if ($languages.Count -eq 0) {
-        Write-Host "找不到任何語言目錄" -ForegroundColor Red
+        Write-Host "No language directories found." -ForegroundColor Red
         return ""
     }
 
     for ($i = 0; $i -lt $languages.Count; $i++) {
         Write-Host "  [$($i + 1)] $($languages[$i])" -ForegroundColor White
     }
-    Write-Host "  [0] 取消" -ForegroundColor Gray
+    Write-Host "  [0] Cancel" -ForegroundColor Gray
 
-    $choice = Read-Host "請選擇"
+    $choice = Read-Host "Select"
 
     if ($choice -eq "0" -or [string]::IsNullOrEmpty($choice)) {
         return ""
@@ -240,7 +256,7 @@ function Select-Language {
 }
 
 # ============================================
-# 選擇擴展
+# Select Extension
 # ============================================
 function Select-Extension {
     param([string]$LanguagePath)
@@ -250,21 +266,21 @@ function Select-Extension {
         return ""
     }
 
-    $extensions = Get-ChildItem -Path $extPath -Filter "*.md" | Select-Object -ExpandProperty BaseName
+    $extensions = @(Get-ChildItem -Path $extPath -Filter "*.md" | Select-Object -ExpandProperty BaseName)
 
     if ($extensions.Count -eq 0) {
         return ""
     }
 
     Write-Host ""
-    Write-Host "=== 選擇專案擴展 ===" -ForegroundColor Cyan
-    Write-Host "  [0] 僅使用基礎規範" -ForegroundColor Gray
+    Write-Host "=== Select Extension ===" -ForegroundColor Cyan
+    Write-Host "  [0] Base Only" -ForegroundColor Gray
 
     for ($i = 0; $i -lt $extensions.Count; $i++) {
         Write-Host "  [$($i + 1)] $($extensions[$i])" -ForegroundColor White
     }
 
-    $choice = Read-Host "請選擇"
+    $choice = Read-Host "Select"
 
     if ($choice -eq "0" -or [string]::IsNullOrEmpty($choice)) {
         return ""
@@ -279,7 +295,7 @@ function Select-Extension {
 }
 
 # ============================================
-# 選擇模組
+# Select Modules
 # ============================================
 function Select-Modules {
     $modulesPath = Join-Path $PROMPTS_BASE_PATH "modules"
@@ -287,24 +303,24 @@ function Select-Modules {
         return @()
     }
 
-    $modules = Get-ChildItem -Path $modulesPath -Filter "*.md" | Select-Object -ExpandProperty BaseName
+    $modules = @(Get-ChildItem -Path $modulesPath -Filter "*.md" | Select-Object -ExpandProperty BaseName)
 
     if ($modules.Count -eq 0) {
         return @()
     }
 
     Write-Host ""
-    Write-Host "=== 選擇額外模組 (多選，Enter 結束) ===" -ForegroundColor Cyan
+    Write-Host "=== Select Extra Modules (Multiple, Enter to finish) ===" -ForegroundColor Cyan
 
     for ($i = 0; $i -lt $modules.Count; $i++) {
         Write-Host "  [$($i + 1)] $($modules[$i])" -ForegroundColor White
     }
-    Write-Host "  [0] 完成選擇" -ForegroundColor Gray
+    Write-Host "  [0] Done" -ForegroundColor Gray
 
     $selected = @()
 
     while ($true) {
-        $choice = Read-Host "請選擇"
+        $choice = Read-Host "Select"
 
         if ($choice -eq "0" -or [string]::IsNullOrEmpty($choice)) {
             break
@@ -315,7 +331,7 @@ function Select-Modules {
             $moduleName = $modules[$index]
             if ($selected -notcontains $moduleName) {
                 $selected += $moduleName
-                Write-Host "   已加入: $moduleName" -ForegroundColor Green
+                Write-Host "   Added: $moduleName" -ForegroundColor Green
             }
         }
     }
@@ -324,7 +340,7 @@ function Select-Modules {
 }
 
 # ============================================
-# 組合 Prompt
+# Build Combined Prompt
 # ============================================
 function Build-CombinedPrompt {
     param(
@@ -338,9 +354,9 @@ function Build-CombinedPrompt {
     $configValues = @{}
 
     Write-Host ""
-    Write-Host "載入中..." -ForegroundColor Gray
+    Write-Host "Loading..." -ForegroundColor Gray
 
-    # 取得擴展設定（如果有）
+    # Get extension config if any
     if (-not [string]::IsNullOrEmpty($Extension)) {
         $configValues = Get-ExtensionConfig -Extension $Extension
     }
@@ -348,18 +364,18 @@ function Build-CombinedPrompt {
     # Metadata
     $modulesStr = if ($Modules.Count -gt 0) { $Modules -join ", " } else { "none" }
     $extensionStr = if ([string]::IsNullOrEmpty($Extension)) { "none" } else { $Extension }
-    $metadata = @"
-<!-- PROMPT CONFIG
-Language: $Language
-Extension: $extensionStr
-Modules: $modulesStr
-Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
--->
+    
+    # Use string concatenation instead of Here-String to avoid parsing issues
+    $metadata = "<!-- PROMPT CONFIG`n" +
+                "Language: $Language`n" +
+                "Extension: $extensionStr`n" +
+                "Modules: $modulesStr`n" +
+                "Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")`n" +
+                "-->`n"
 
-"@
     $promptParts += $metadata
 
-    # 1. 載入 common
+    # 1. Load common
     $commonPath = Join-Path $PROMPTS_BASE_PATH "common"
     if (Test-Path $commonPath) {
         $commonFiles = Get-ChildItem -Path $commonPath -Filter "*.md"
@@ -370,7 +386,7 @@ Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
         }
     }
 
-    # 2. 載入語言基礎
+    # 2. Load base language
     $basePath = Join-Path $PROMPTS_BASE_PATH "languages\$Language\base.md"
     if (Test-Path $basePath) {
         $content = Get-Content $basePath -Raw -Encoding UTF8
@@ -378,18 +394,18 @@ Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
         Write-Host "   [base] $Language/base.md" -ForegroundColor Gray
     }
 
-    # 3. 載入擴展
+    # 3. Load extension
     if (-not [string]::IsNullOrEmpty($Extension)) {
         $extPath = Join-Path $PROMPTS_BASE_PATH "languages\$Language\extensions\$Extension.md"
         if (Test-Path $extPath) {
             $content = Get-Content $extPath -Raw -Encoding UTF8
 
-            # 替換佔位符
+            # Replace placeholders
             foreach ($key in $configValues.Keys) {
                 $placeholder = "{{$key}}"
                 $value = $configValues[$key]
                 if ([string]::IsNullOrEmpty($value)) {
-                    $value = "(未設定)"
+                    $value = "(Not Set)"
                 }
                 $content = $content -replace [regex]::Escape($placeholder), $value
             }
@@ -399,7 +415,7 @@ Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
         }
     }
 
-    # 4. 載入模組
+    # 4. Load modules
     foreach ($module in $Modules) {
         $modulePath = Join-Path $PROMPTS_BASE_PATH "modules\$module.md"
         if (Test-Path $modulePath) {
@@ -413,7 +429,7 @@ Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
 }
 
 # ============================================
-# 設定全域 Prompt
+# Set Global Prompt
 # ============================================
 function Set-GlobalPrompt {
     param([string]$Prompt)
@@ -426,68 +442,68 @@ function Set-GlobalPrompt {
     $globalGeminiMd = Join-Path $globalGeminiDir "GEMINI.md"
     Set-Content -Path $globalGeminiMd -Value $Prompt -Encoding UTF8
 
-    Write-Host "   已寫入: $globalGeminiMd" -ForegroundColor Gray
+    Write-Host "   Written to: $globalGeminiMd" -ForegroundColor Gray
 }
 
 # ============================================
-# 輔助指令
+# Helper Commands
 # ============================================
 
-# 清除本地 prompt
+# Clear local prompt
 function Clear-LocalPrompt {
     $localRules = Join-Path (Get-Location) ".geminirules"
     if (Test-Path $localRules) {
         Remove-Item $localRules -Force
-        Write-Host "已清除本地 .geminirules" -ForegroundColor Green
+        Write-Host "Cleared local .geminirules" -ForegroundColor Green
     } else {
-        Write-Host "沒有本地設定" -ForegroundColor Yellow
+        Write-Host "No local rules found." -ForegroundColor Yellow
     }
 }
 
-# 清除全域 prompt
+# Clear global prompt
 function Clear-GlobalPrompt {
     $globalGeminiMd = Join-Path $env:USERPROFILE ".gemini\GEMINI.md"
     if (Test-Path $globalGeminiMd) {
         Remove-Item $globalGeminiMd -Force
-        Write-Host "已清除全域 Prompt 設定" -ForegroundColor Green
+        Write-Host "Cleared Global Prompt settings." -ForegroundColor Green
     } else {
-        Write-Host "沒有全域設定" -ForegroundColor Yellow
+        Write-Host "No global settings found." -ForegroundColor Yellow
     }
 }
 
-# 顯示目前設定狀態
+# Show current status
 function Show-PromptStatus {
     Write-Host ""
-    Write-Host "=== Gemini Prompt 設定狀態 ===" -ForegroundColor Cyan
+    Write-Host "=== Gemini Prompt Status ===" -ForegroundColor Cyan
 
     $globalGeminiMd = Join-Path $env:USERPROFILE ".gemini\GEMINI.md"
     if (Test-Path $globalGeminiMd) {
         $content = Get-Content $globalGeminiMd -TotalCount 5 -Encoding UTF8
         $langLine = $content | Where-Object { $_ -match "^Language:" }
-        Write-Host "  [全域] $globalGeminiMd" -ForegroundColor Green
+        Write-Host "  [Global] $globalGeminiMd" -ForegroundColor Green
         if ($langLine) {
-            Write-Host "         $langLine" -ForegroundColor Gray
+            Write-Host "           $langLine" -ForegroundColor Gray
         }
     } else {
-        Write-Host "  [全域] 未設定" -ForegroundColor Yellow
+        Write-Host "  [Global] Not Set" -ForegroundColor Yellow
     }
 
     $localRules = Join-Path (Get-Location) ".geminirules"
     if (Test-Path $localRules) {
         $content = Get-Content $localRules -TotalCount 5 -Encoding UTF8
         $langLine = $content | Where-Object { $_ -match "^Language:" }
-        Write-Host "  [本地] $localRules" -ForegroundColor Green
+        Write-Host "  [Local]  $localRules" -ForegroundColor Green
         if ($langLine) {
-            Write-Host "         $langLine" -ForegroundColor Gray
+            Write-Host "           $langLine" -ForegroundColor Gray
         }
     } else {
-        Write-Host "  [本地] 未設定" -ForegroundColor Yellow
+        Write-Host "  [Local]  Not Set" -ForegroundColor Yellow
     }
 
-    # 顯示擴展設定
+    # Show extension config
     if (Test-Path $script:CONFIG_FILE) {
         Write-Host ""
-        Write-Host "=== 擴展設定 ===" -ForegroundColor Cyan
+        Write-Host "=== Extension Config ===" -ForegroundColor Cyan
         Get-Content $script:CONFIG_FILE -Encoding UTF8 | ForEach-Object {
             Write-Host "  $_" -ForegroundColor Gray
         }
@@ -496,11 +512,11 @@ function Show-PromptStatus {
     Write-Host ""
 }
 
-# 設定全域 prompt（互動）
+# Set global prompt (Interactive)
 function Set-GlobalGeminiPrompt {
     $language = Select-Language
     if ([string]::IsNullOrEmpty($language)) {
-        Write-Host "已取消" -ForegroundColor Red
+        Write-Host "Cancelled" -ForegroundColor Red
         return
     }
 
@@ -512,11 +528,11 @@ function Set-GlobalGeminiPrompt {
     Set-GlobalPrompt -Prompt $combinedPrompt
 
     Write-Host ""
-    Write-Host "已設定全域 Prompt: $language" -ForegroundColor Green
-    Write-Host "此設定將套用於所有專案（除非有本地 .geminirules）" -ForegroundColor Yellow
+    Write-Host "Global Prompt Set: $language" -ForegroundColor Green
+    Write-Host "This setting applies to all projects (unless .geminirules exists)." -ForegroundColor Yellow
 }
 
-# 設定擴展參數
+# Set extension config
 function Set-ExtensionConfig {
     param(
         [Parameter(Mandatory=$true)]
@@ -526,41 +542,54 @@ function Set-ExtensionConfig {
     switch ($Extension.ToLower()) {
         "dachan" {
             Write-Host ""
-            Write-Host "=== 設定 Dachan 擴展 ===" -ForegroundColor Cyan
+            Write-Host "=== Set Dachan Extension Config ===" -ForegroundColor Cyan
             $currentPath = Get-PromptConfig -Key "DACHAN_COMMONUTILS_PATH"
             if ($currentPath) {
-                Write-Host "目前設定: $currentPath" -ForegroundColor Gray
+                Write-Host "Current: $currentPath" -ForegroundColor Gray
             }
-            $newPath = Read-Host "請輸入 CommonUtils 專案路徑 (空白保留原設定)"
+            $newPath = Read-Host "Enter CommonUtils path (empty to keep current)"
             if (-not [string]::IsNullOrEmpty($newPath)) {
                 Set-PromptConfig -Key "DACHAN_COMMONUTILS_PATH" -Value $newPath
-                Write-Host "已更新設定" -ForegroundColor Green
+                Write-Host "Config Updated" -ForegroundColor Green
             }
         }
         default {
-            Write-Host "未知的擴展: $Extension" -ForegroundColor Red
+            Write-Host "Unknown extension: $Extension" -ForegroundColor Red
         }
     }
 }
 
+# Set Always Ask Mode
+function Set-AskMode {
+    param([switch]$Off)
+
+    if ($Off) {
+        Set-PromptConfig -Key "ALWAYS_ASK_PROMPT" -Value "false"
+        Write-Host "Always Ask Mode: OFF (Auto-load existing rules)" -ForegroundColor Yellow
+    } else {
+        Set-PromptConfig -Key "ALWAYS_ASK_PROMPT" -Value "true"
+        Write-Host "Always Ask Mode: ON (Will ask every time)" -ForegroundColor Green
+    }
+}
+
 # ============================================
-# 歡迎訊息（僅首次顯示）
+# Welcome Message (First time only)
 # ============================================
 if (-not $env:GEMINI_PROMPT_LOADED) {
     $env:GEMINI_PROMPT_LOADED = "1"
     Write-Host ""
-    Write-Host "Gemini Prompt 系統已就緒 (v4.1)" -ForegroundColor Green
+    Write-Host "Gemini Prompt System Ready (v4.3)" -ForegroundColor Green
     Write-Host ""
-    Write-Host "使用方式：" -ForegroundColor Cyan
-    Write-Host "  gemini              # 自動詢問是否載入 prompt" -ForegroundColor White
-    Write-Host "  gemini -s           # 跳過 prompt，使用原生模式" -ForegroundColor White
-    Write-Host "  gemini -p           # 強制重新選擇 prompt" -ForegroundColor White
+    Write-Host "Usage:" -ForegroundColor Cyan
+    Write-Host "  gemini              # Run native Gemini CLI" -ForegroundColor White
+    Write-Host "  gprompt             # Load prompt context & run Gemini" -ForegroundColor White
     Write-Host ""
-    Write-Host "輔助指令：" -ForegroundColor Cyan
-    Write-Host "  Show-PromptStatus            # 查看目前設定" -ForegroundColor Gray
-    Write-Host "  Set-GlobalGeminiPrompt       # 設定全域 prompt" -ForegroundColor Gray
-    Write-Host "  Set-ExtensionConfig dachan   # 設定擴展參數" -ForegroundColor Gray
-    Write-Host "  Clear-LocalPrompt            # 清除本地設定" -ForegroundColor Gray
-    Write-Host "  Clear-GlobalPrompt           # 清除全域設定" -ForegroundColor Gray
+    Write-Host "Helper Commands:" -ForegroundColor Cyan
+    Write-Host "  Show-PromptStatus            # Show current status" -ForegroundColor Gray
+    Write-Host "  Set-AskMode                  # Toggle 'Always Ask' mode" -ForegroundColor Gray
+    Write-Host "  Set-GlobalGeminiPrompt       # Set global prompt" -ForegroundColor Gray
+    Write-Host "  Set-ExtensionConfig dachan   # Set extension config" -ForegroundColor Gray
+    Write-Host "  Clear-LocalPrompt            # Clear local rules" -ForegroundColor Gray
+    Write-Host "  Clear-GlobalPrompt           # Clear global rules" -ForegroundColor Gray
     Write-Host ""
 }
