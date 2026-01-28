@@ -8,7 +8,7 @@
 
 ```powershell
 # 1. Clone 到任意位置
-git clone https://github.com/YOUR_USERNAME/claude-prompts.git
+git clone https://github.com/Ecohover/claude-prompts.git
 cd claude-prompts
 
 # 2. 執行安裝腳本
@@ -21,7 +21,7 @@ cd claude-prompts
 
 ```bash
 # 1. Clone 到任意位置
-git clone https://github.com/YOUR_USERNAME/claude-prompts.git
+git clone https://github.com/Ecohover/claude-prompts.git
 cd claude-prompts
 
 # 2. 執行安裝腳本
