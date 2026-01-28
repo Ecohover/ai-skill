@@ -1,0 +1,6 @@
+# 本地設定
+.clauderules
+
+# 系統檔案
+.DS_Store
+Thumbs.db
