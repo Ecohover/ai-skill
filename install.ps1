@@ -9,6 +9,7 @@ $scriptDir = $PSScriptRoot
 $loaderPath = Join-Path $scriptDir "loader.ps1"
 $envVarName = "CLAUDE_PROMPTS_PATH"
 $profileLine = ". `"$loaderPath`""
+$configFile = Join-Path $env:USERPROFILE ".claude-prompts-config"
 
 # ============================================
 # 解除安裝
@@ -21,13 +22,25 @@ if ($Uninstall) {
     [Environment]::SetEnvironmentVariable($envVarName, $null, "User")
     Write-Host "  已移除環境變數: $envVarName" -ForegroundColor Green
 
-    # 提示手動移除 Profile
+    # 移除設定檔
+    if (Test-Path $configFile) {
+        Remove-Item $configFile -Force
+        Write-Host "  已移除設定檔: $configFile" -ForegroundColor Green
+    }
+
+    # 自動從 Profile 移除
+    if (Test-Path $PROFILE) {
+        $profileContent = Get-Content $PROFILE -Raw -Encoding UTF8
+        if ($profileContent -match [regex]::Escape($loaderPath)) {
+            $newContent = $profileContent -replace "# Claude Prompts Loader\r?\n", ""
+            $newContent = $newContent -replace [regex]::Escape($profileLine) + "\r?\n?", ""
+            Set-Content -Path $PROFILE -Value $newContent.Trim() -Encoding UTF8
+            Write-Host "  已從 Profile 移除載入腳本" -ForegroundColor Green
+        }
+    }
+
     Write-Host ""
-    Write-Host "請手動編輯 PowerShell Profile 移除以下行：" -ForegroundColor Yellow
-    Write-Host "  $profileLine" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "執行以下指令開啟 Profile：" -ForegroundColor Yellow
-    Write-Host "  notepad `$PROFILE" -ForegroundColor Gray
+    Write-Host "解除安裝完成！請重新開啟 PowerShell。" -ForegroundColor Green
     Write-Host ""
     return
 }

@@ -1,5 +1,5 @@
 # Claude Code Prompt 載入腳本
-# 版本：v4.0 (自動載入)
+# 版本：v4.1 (支援擴展設定)
 
 # ============================================
 # 配置區（動態路徑）
@@ -10,8 +10,86 @@ if ($env:CLAUDE_PROMPTS_PATH) {
     $PROMPTS_BASE_PATH = $PSScriptRoot
 }
 
+# 設定檔路徑
+$script:CONFIG_FILE = Join-Path $env:USERPROFILE ".claude-prompts-config"
+
 # 儲存原生 claude 指令路徑
 $script:CLAUDE_NATIVE = (Get-Command claude -CommandType Application -ErrorAction SilentlyContinue).Source
+
+# ============================================
+# 設定檔管理
+# ============================================
+function Get-PromptConfig {
+    param([string]$Key)
+
+    if (-not (Test-Path $script:CONFIG_FILE)) {
+        return $null
+    }
+
+    $config = Get-Content $script:CONFIG_FILE -Encoding UTF8 | Where-Object { $_ -match "^$Key=" }
+    if ($config) {
+        return ($config -replace "^$Key=", "").Trim()
+    }
+    return $null
+}
+
+function Set-PromptConfig {
+    param(
+        [string]$Key,
+        [string]$Value
+    )
+
+    $lines = @()
+    $found = $false
+
+    if (Test-Path $script:CONFIG_FILE) {
+        $lines = @(Get-Content $script:CONFIG_FILE -Encoding UTF8)
+        for ($i = 0; $i -lt $lines.Count; $i++) {
+            if ($lines[$i] -match "^$Key=") {
+                $lines[$i] = "$Key=$Value"
+                $found = $true
+                break
+            }
+        }
+    }
+
+    if (-not $found) {
+        $lines += "$Key=$Value"
+    }
+
+    Set-Content -Path $script:CONFIG_FILE -Value $lines -Encoding UTF8
+}
+
+function Get-ExtensionConfig {
+    param([string]$Extension)
+
+    # 根據 extension 名稱取得需要的設定
+    switch ($Extension.ToLower()) {
+        "dachan" {
+            $commonUtilsPath = Get-PromptConfig -Key "DACHAN_COMMONUTILS_PATH"
+
+            if ([string]::IsNullOrEmpty($commonUtilsPath)) {
+                Write-Host ""
+                Write-Host "=== Dachan 擴展設定 ===" -ForegroundColor Cyan
+                Write-Host "首次使用需要設定 CommonUtils 專案路徑" -ForegroundColor Yellow
+                Write-Host ""
+                $commonUtilsPath = Read-Host "請輸入 CommonUtils 專案路徑"
+
+                if (-not [string]::IsNullOrEmpty($commonUtilsPath)) {
+                    Set-PromptConfig -Key "DACHAN_COMMONUTILS_PATH" -Value $commonUtilsPath
+                    Write-Host "已儲存設定" -ForegroundColor Green
+                }
+            }
+
+            return @{
+                "DACHAN_COMMONUTILS_PATH" = $commonUtilsPath
+            }
+        }
+        default {
+            return @{}
+        }
+    }
+}
 
 # ============================================
 # 主函數：覆蓋 claude 指令
@@ -246,9 +324,15 @@ function Build-CombinedPrompt {
 
     $promptParts = @()
     $separator = "`n`n---`n`n"
+    $configValues = @{}
 
     Write-Host ""
     Write-Host "載入中..." -ForegroundColor Gray
+
+    # 取得擴展設定（如果有）
+    if (-not [string]::IsNullOrEmpty($Extension)) {
+        $configValues = Get-ExtensionConfig -Extension $Extension
+    }
 
     # Metadata
     $modulesStr = if ($Modules.Count -gt 0) { $Modules -join ", " } else { "none" }
@@ -288,6 +372,17 @@ Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
         $extPath = Join-Path $PROMPTS_BASE_PATH "languages\$Language\extensions\$Extension.md"
         if (Test-Path $extPath) {
             $content = Get-Content $extPath -Raw -Encoding UTF8
+
+            # 替換佔位符
+            foreach ($key in $configValues.Keys) {
+                $placeholder = "{{$key}}"
+                $value = $configValues[$key]
+                if ([string]::IsNullOrEmpty($value)) {
+                    $value = "(未設定)"
+                }
+                $content = $content -replace [regex]::Escape($placeholder), $value
+            }
+
             $promptParts += $content
             Write-Host "   [extension] $Extension.md" -ForegroundColor Gray
         }
@@ -378,6 +473,15 @@ function Show-PromptStatus {
         Write-Host "  [本地] 未設定" -ForegroundColor Yellow
     }
 
+    # 顯示擴展設定
+    if (Test-Path $script:CONFIG_FILE) {
+        Write-Host ""
+        Write-Host "=== 擴展設定 ===" -ForegroundColor Cyan
+        Get-Content $script:CONFIG_FILE -Encoding UTF8 | ForEach-Object {
+            Write-Host "  $_" -ForegroundColor Gray
+        }
+    }
+
     Write-Host ""
 }
 
@@ -401,13 +505,40 @@ function Set-GlobalClaudePrompt {
     Write-Host "此設定將套用於所有專案（除非有本地 .clauderules）" -ForegroundColor Yellow
 }
 
+# 設定擴展參數
+function Set-ExtensionConfig {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Extension
+    )
+
+    switch ($Extension.ToLower()) {
+        "dachan" {
+            Write-Host ""
+            Write-Host "=== 設定 Dachan 擴展 ===" -ForegroundColor Cyan
+            $currentPath = Get-PromptConfig -Key "DACHAN_COMMONUTILS_PATH"
+            if ($currentPath) {
+                Write-Host "目前設定: $currentPath" -ForegroundColor Gray
+            }
+            $newPath = Read-Host "請輸入 CommonUtils 專案路徑 (空白保留原設定)"
+            if (-not [string]::IsNullOrEmpty($newPath)) {
+                Set-PromptConfig -Key "DACHAN_COMMONUTILS_PATH" -Value $newPath
+                Write-Host "已更新設定" -ForegroundColor Green
+            }
+        }
+        default {
+            Write-Host "未知的擴展: $Extension" -ForegroundColor Red
+        }
+    }
+}
+
 # ============================================
 # 歡迎訊息（僅首次顯示）
 # ============================================
 if (-not $env:CLAUDE_PROMPT_LOADED) {
     $env:CLAUDE_PROMPT_LOADED = "1"
     Write-Host ""
-    Write-Host "Claude Prompt 系統已就緒 (v4.0)" -ForegroundColor Green
+    Write-Host "Claude Prompt 系統已就緒 (v4.1)" -ForegroundColor Green
     Write-Host ""
     Write-Host "使用方式：" -ForegroundColor Cyan
     Write-Host "  claude              # 自動詢問是否載入 prompt" -ForegroundColor White
@@ -415,9 +546,10 @@ if (-not $env:CLAUDE_PROMPT_LOADED) {
     Write-Host "  claude -p           # 強制重新選擇 prompt" -ForegroundColor White
     Write-Host ""
     Write-Host "輔助指令：" -ForegroundColor Cyan
-    Write-Host "  Show-PromptStatus       # 查看目前設定" -ForegroundColor Gray
-    Write-Host "  Set-GlobalClaudePrompt  # 設定全域 prompt" -ForegroundColor Gray
-    Write-Host "  Clear-LocalPrompt       # 清除本地設定" -ForegroundColor Gray
-    Write-Host "  Clear-GlobalPrompt      # 清除全域設定" -ForegroundColor Gray
+    Write-Host "  Show-PromptStatus            # 查看目前設定" -ForegroundColor Gray
+    Write-Host "  Set-GlobalClaudePrompt       # 設定全域 prompt" -ForegroundColor Gray
+    Write-Host "  Set-ExtensionConfig dachan   # 設定擴展參數" -ForegroundColor Gray
+    Write-Host "  Clear-LocalPrompt            # 清除本地設定" -ForegroundColor Gray
+    Write-Host "  Clear-GlobalPrompt           # 清除全域設定" -ForegroundColor Gray
     Write-Host ""
 }

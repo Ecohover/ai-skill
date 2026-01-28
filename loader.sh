@@ -1,6 +1,6 @@
 #!/bin/bash
 # Claude Code Prompt 載入腳本 (Mac/Linux)
-# 版本：v4.0 (自動載入)
+# 版本：v4.1 (支援擴展設定)
 
 # ============================================
 # 配置區（動態路徑）
@@ -10,6 +10,9 @@ if [[ -n "$CLAUDE_PROMPTS_PATH" ]]; then
 else
     PROMPTS_BASE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 fi
+
+# 設定檔路徑
+CONFIG_FILE="$HOME/.claude-prompts-config"
 
 # 儲存原生 claude 指令路徑
 CLAUDE_NATIVE="$(which claude 2>/dev/null)"
@@ -22,6 +25,56 @@ CYAN='\033[0;36m'
 WHITE='\033[1;37m'
 GRAY='\033[0;90m'
 NC='\033[0m'
+
+# ============================================
+# 設定檔管理
+# ============================================
+get_prompt_config() {
+    local key="$1"
+    if [[ -f "$CONFIG_FILE" ]]; then
+        grep "^$key=" "$CONFIG_FILE" 2>/dev/null | cut -d'=' -f2-
+    fi
+}
+
+set_prompt_config() {
+    local key="$1"
+    local value="$2"
+
+    if [[ -f "$CONFIG_FILE" ]] && grep -q "^$key=" "$CONFIG_FILE" 2>/dev/null; then
+        # 更新現有設定
+        sed -i.bak "s|^$key=.*|$key=$value|" "$CONFIG_FILE"
+        rm -f "$CONFIG_FILE.bak"
+    else
+        # 新增設定
+        echo "$key=$value" >> "$CONFIG_FILE"
+    fi
+}
+
+get_extension_config() {
+    local extension="$1"
+    local -n result=$2
+
+    case "${extension,,}" in
+        "dachan")
+            local commonutils_path=$(get_prompt_config "DACHAN_COMMONUTILS_PATH")
+
+            if [[ -z "$commonutils_path" ]]; then
+                echo "" >&2
+                echo -e "${CYAN}=== Dachan 擴展設定 ===${NC}" >&2
+                echo -e "${YELLOW}首次使用需要設定 CommonUtils 專案路徑${NC}" >&2
+                echo "" >&2
+                read -p "請輸入 CommonUtils 專案路徑: " commonutils_path
+
+                if [[ -n "$commonutils_path" ]]; then
+                    set_prompt_config "DACHAN_COMMONUTILS_PATH" "$commonutils_path"
+                    echo -e "${GREEN}已儲存設定${NC}" >&2
+                fi
+            fi
+
+            result["DACHAN_COMMONUTILS_PATH"]="$commonutils_path"
+            ;;
+    esac
+}
 
 # ============================================
 # 選擇語言
@@ -164,6 +217,12 @@ _build_prompt() {
     echo "" >&2
     echo -e "${GRAY}載入中...${NC}" >&2
 
+    # 取得擴展設定
+    declare -A config_values
+    if [[ -n "$extension" ]]; then
+        get_extension_config "$extension" config_values
+    fi
+
     # Metadata
     local modules_str="${modules:-none}"
     local extension_str="${extension:-none}"
@@ -202,7 +261,16 @@ Generated: $timestamp
     if [[ -n "$extension" ]]; then
         local ext_path="$PROMPTS_BASE_PATH/languages/$language/extensions/$extension.md"
         if [[ -f "$ext_path" ]]; then
-            result+="$(cat "$ext_path")"
+            local ext_content="$(cat "$ext_path")"
+
+            # 替換佔位符
+            for key in "${!config_values[@]}"; do
+                local value="${config_values[$key]}"
+                [[ -z "$value" ]] && value="(未設定)"
+                ext_content="${ext_content//\{\{$key\}\}/$value}"
+            done
+
+            result+="$ext_content"
             result+="$separator"
             echo -e "${GRAY}   [extension] $extension.md${NC}" >&2
         fi
@@ -330,7 +398,6 @@ claude() {
 # 輔助指令
 # ============================================
 
-# 清除本地 prompt
 clear_local_prompt() {
     local local_rules="$(pwd)/.clauderules"
     if [[ -f "$local_rules" ]]; then
@@ -341,7 +408,6 @@ clear_local_prompt() {
     fi
 }
 
-# 清除全域 prompt
 clear_global_prompt() {
     local global_file="$HOME/.claude/CLAUDE.md"
     if [[ -f "$global_file" ]]; then
@@ -352,7 +418,6 @@ clear_global_prompt() {
     fi
 }
 
-# 顯示目前設定狀態
 show_prompt_status() {
     echo ""
     echo -e "${CYAN}=== Prompt 設定狀態 ===${NC}"
@@ -375,10 +440,18 @@ show_prompt_status() {
         echo -e "${YELLOW}  [本地] 未設定${NC}"
     fi
 
+    # 顯示擴展設定
+    if [[ -f "$CONFIG_FILE" ]]; then
+        echo ""
+        echo -e "${CYAN}=== 擴展設定 ===${NC}"
+        while IFS= read -r line; do
+            echo -e "${GRAY}  $line${NC}"
+        done < "$CONFIG_FILE"
+    fi
+
     echo ""
 }
 
-# 設定全域 prompt（互動）
 set_global_claude_prompt() {
     local language=$(_select_language)
     if [[ -z "$language" ]]; then
@@ -400,13 +473,36 @@ set_global_claude_prompt() {
     echo -e "${YELLOW}此設定將套用於所有專案（除非有本地 .clauderules）${NC}"
 }
 
+set_extension_config() {
+    local extension="$1"
+
+    case "${extension,,}" in
+        "dachan")
+            echo ""
+            echo -e "${CYAN}=== 設定 Dachan 擴展 ===${NC}"
+            local current_path=$(get_prompt_config "DACHAN_COMMONUTILS_PATH")
+            if [[ -n "$current_path" ]]; then
+                echo -e "${GRAY}目前設定: $current_path${NC}"
+            fi
+            read -p "請輸入 CommonUtils 專案路徑 (空白保留原設定): " new_path
+            if [[ -n "$new_path" ]]; then
+                set_prompt_config "DACHAN_COMMONUTILS_PATH" "$new_path"
+                echo -e "${GREEN}已更新設定${NC}"
+            fi
+            ;;
+        *)
+            echo -e "${RED}未知的擴展: $extension${NC}"
+            ;;
+    esac
+}
+
 # ============================================
 # 歡迎訊息（僅首次顯示）
 # ============================================
 if [[ -z "$CLAUDE_PROMPT_LOADED" ]]; then
     export CLAUDE_PROMPT_LOADED=1
     echo ""
-    echo -e "${GREEN}Claude Prompt 系統已就緒 (v4.0)${NC}"
+    echo -e "${GREEN}Claude Prompt 系統已就緒 (v4.1)${NC}"
     echo ""
     echo -e "${CYAN}使用方式：${NC}"
     echo -e "${WHITE}  claude              # 自動詢問是否載入 prompt${NC}"
@@ -414,9 +510,10 @@ if [[ -z "$CLAUDE_PROMPT_LOADED" ]]; then
     echo -e "${WHITE}  claude -p           # 強制重新選擇 prompt${NC}"
     echo ""
     echo -e "${CYAN}輔助指令：${NC}"
-    echo -e "${GRAY}  show_prompt_status       # 查看目前設定${NC}"
-    echo -e "${GRAY}  set_global_claude_prompt # 設定全域 prompt${NC}"
-    echo -e "${GRAY}  clear_local_prompt       # 清除本地設定${NC}"
-    echo -e "${GRAY}  clear_global_prompt      # 清除全域設定${NC}"
+    echo -e "${GRAY}  show_prompt_status            # 查看目前設定${NC}"
+    echo -e "${GRAY}  set_global_claude_prompt      # 設定全域 prompt${NC}"
+    echo -e "${GRAY}  set_extension_config dachan   # 設定擴展參數${NC}"
+    echo -e "${GRAY}  clear_local_prompt            # 清除本地設定${NC}"
+    echo -e "${GRAY}  clear_global_prompt           # 清除全域設定${NC}"
     echo ""
 fi
