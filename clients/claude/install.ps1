@@ -6,6 +6,7 @@ param(
 )
 
 $scriptDir = $PSScriptRoot
+$projectRoot = (Resolve-Path "$PSScriptRoot\..\..").Path
 $loaderPath = Join-Path $scriptDir "loader.ps1"
 $envVarName = "CLAUDE_PROMPTS_PATH"
 $profileLine = ". `"$loaderPath`""
@@ -54,9 +55,9 @@ Write-Host ""
 
 # 1. 設定環境變數
 Write-Host "[1/3] 設定環境變數..." -ForegroundColor White
-[Environment]::SetEnvironmentVariable($envVarName, $scriptDir, "User")
-$env:CLAUDE_PROMPTS_PATH = $scriptDir
-Write-Host "  $envVarName = $scriptDir" -ForegroundColor Green
+[Environment]::SetEnvironmentVariable($envVarName, $projectRoot, "User")
+$env:CLAUDE_PROMPTS_PATH = $projectRoot
+Write-Host "  $envVarName = $projectRoot" -ForegroundColor Green
 
 # 2. 檢查 Profile 是否存在
 Write-Host ""

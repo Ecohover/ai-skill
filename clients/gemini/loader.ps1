@@ -1,20 +1,20 @@
-# Claude Code Prompt 載入腳本
+# Gemini Code Prompt 載入腳本
 # 版本：v4.1 (支援擴展設定)
 
 # ============================================
 # 配置區（動態路徑）
 # ============================================
-if ($env:CLAUDE_PROMPTS_PATH) {
-    $PROMPTS_BASE_PATH = $env:CLAUDE_PROMPTS_PATH
+if ($env:GEMINI_PROMPTS_PATH) {
+    $PROMPTS_BASE_PATH = $env:GEMINI_PROMPTS_PATH
 } else {
-    $PROMPTS_BASE_PATH = $PSScriptRoot
+    $PROMPTS_BASE_PATH = (Resolve-Path "$PSScriptRoot\..\..").Path
 }
 
 # 設定檔路徑
-$script:CONFIG_FILE = Join-Path $env:USERPROFILE ".claude-prompts-config"
+$script:CONFIG_FILE = Join-Path $env:USERPROFILE ".gemini-prompts-config"
 
-# 儲存原生 claude 指令路徑
-$script:CLAUDE_NATIVE = (Get-Command claude -CommandType Application -ErrorAction SilentlyContinue).Source
+# 儲存原生 gemini 指令路徑
+$script:GEMINI_NATIVE = (Get-Command gemini -CommandType Application -ErrorAction SilentlyContinue).Source
 
 # ============================================
 # 設定檔管理
@@ -92,9 +92,9 @@ function Get-ExtensionConfig {
 }
 
 # ============================================
-# 主函數：覆蓋 claude 指令
+# 主函數：覆蓋 gemini 指令
 # ============================================
-function claude {
+function gemini {
     param(
         [Parameter(Position=0, ValueFromRemainingArguments=$true)]
         [string[]]$Arguments
@@ -103,8 +103,12 @@ function claude {
     # 檢查是否有 --skip 或 -s 參數
     if ($Arguments -contains "--skip" -or $Arguments -contains "-s") {
         $filteredArgs = $Arguments | Where-Object { $_ -ne "--skip" -and $_ -ne "-s" }
-        Write-Host "啟動原生 Claude..." -ForegroundColor Gray
-        & $script:CLAUDE_NATIVE @filteredArgs
+        Write-Host "啟動原生 Gemini..." -ForegroundColor Gray
+        if ($script:GEMINI_NATIVE) {
+            & $script:GEMINI_NATIVE @filteredArgs
+        } else {
+            Write-Host "錯誤：找不到原生 gemini 指令" -ForegroundColor Red
+        }
         return
     }
 
@@ -114,19 +118,19 @@ function claude {
         $Arguments = $Arguments | Where-Object { $_ -ne "--prompt" -and $_ -ne "-p" }
     }
 
-    # 檢查本地是否已有 .clauderules
-    $localRules = Join-Path (Get-Location) ".clauderules"
+    # 檢查本地是否已有 .geminirules
+    $localRules = Join-Path (Get-Location) ".geminirules"
     $hasLocalRules = Test-Path $localRules
 
     # 檢查全域是否已有設定
-    $globalRules = Join-Path $env:USERPROFILE ".claude\CLAUDE.md"
+    $globalRules = Join-Path $env:USERPROFILE ".gemini\GEMINI.md"
     $hasGlobalRules = Test-Path $globalRules
 
     # 決定是否需要選擇 prompt
     if ($forcePrompt -or (-not $hasLocalRules -and -not $hasGlobalRules)) {
         # 詢問用戶
         Write-Host ""
-        Write-Host "=== Claude Prompt 設定 ===" -ForegroundColor Cyan
+        Write-Host "=== Gemini Prompt 設定 ===" -ForegroundColor Cyan
         Write-Host "  [1] 選擇 Prompt 規則" -ForegroundColor White
         Write-Host "  [2] 不使用 Prompt（原生模式）" -ForegroundColor White
         if ($hasGlobalRules) {
@@ -141,8 +145,8 @@ function claude {
                 # 互動選擇 prompt
                 $language = Select-Language
                 if ([string]::IsNullOrEmpty($language)) {
-                    Write-Host "已取消，啟動原生 Claude..." -ForegroundColor Yellow
-                    & $script:CLAUDE_NATIVE @Arguments
+                    Write-Host "已取消，啟動原生 Gemini..." -ForegroundColor Yellow
+                    if ($script:GEMINI_NATIVE) { & $script:GEMINI_NATIVE @Arguments }
                     return
                 }
 
@@ -160,22 +164,22 @@ function claude {
                 }
             }
             "2" {
-                Write-Host "啟動原生 Claude..." -ForegroundColor Gray
-                & $script:CLAUDE_NATIVE @Arguments
+                Write-Host "啟動原生 Gemini..." -ForegroundColor Gray
+                if ($script:GEMINI_NATIVE) { & $script:GEMINI_NATIVE @Arguments }
                 return
             }
             "3" {
                 if ($hasGlobalRules) {
                     Write-Host "使用全域設定..." -ForegroundColor Gray
                 } else {
-                    Write-Host "啟動原生 Claude..." -ForegroundColor Gray
+                    Write-Host "啟動原生 Gemini..." -ForegroundColor Gray
                 }
-                & $script:CLAUDE_NATIVE @Arguments
+                if ($script:GEMINI_NATIVE) { & $script:GEMINI_NATIVE @Arguments }
                 return
             }
             default {
-                Write-Host "啟動原生 Claude..." -ForegroundColor Gray
-                & $script:CLAUDE_NATIVE @Arguments
+                Write-Host "啟動原生 Gemini..." -ForegroundColor Gray
+                if ($script:GEMINI_NATIVE) { & $script:GEMINI_NATIVE @Arguments }
                 return
             }
         }
@@ -191,7 +195,14 @@ function claude {
     }
 
     Write-Host ""
-    & $script:CLAUDE_NATIVE @Arguments
+    if ($script:GEMINI_NATIVE) {
+        & $script:GEMINI_NATIVE @Arguments
+    } else {
+        Write-Host "（未偵測到原生 gemini 指令，Prompt 已生成於目標位置）" -ForegroundColor Yellow
+        if (Test-Path $localRules) {
+            Write-Host "Prompt 路徑: $localRules" -ForegroundColor Gray
+        }
+    }
 }
 
 # ============================================
@@ -407,15 +418,15 @@ Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
 function Set-GlobalPrompt {
     param([string]$Prompt)
 
-    $globalClaudeDir = Join-Path $env:USERPROFILE ".claude"
-    if (-not (Test-Path $globalClaudeDir)) {
-        New-Item -ItemType Directory -Path $globalClaudeDir -Force | Out-Null
+    $globalGeminiDir = Join-Path $env:USERPROFILE ".gemini"
+    if (-not (Test-Path $globalGeminiDir)) {
+        New-Item -ItemType Directory -Path $globalGeminiDir -Force | Out-Null
     }
 
-    $globalClaudeMd = Join-Path $globalClaudeDir "CLAUDE.md"
-    Set-Content -Path $globalClaudeMd -Value $Prompt -Encoding UTF8
+    $globalGeminiMd = Join-Path $globalGeminiDir "GEMINI.md"
+    Set-Content -Path $globalGeminiMd -Value $Prompt -Encoding UTF8
 
-    Write-Host "   已寫入: $globalClaudeMd" -ForegroundColor Gray
+    Write-Host "   已寫入: $globalGeminiMd" -ForegroundColor Gray
 }
 
 # ============================================
@@ -424,10 +435,10 @@ function Set-GlobalPrompt {
 
 # 清除本地 prompt
 function Clear-LocalPrompt {
-    $localRules = Join-Path (Get-Location) ".clauderules"
+    $localRules = Join-Path (Get-Location) ".geminirules"
     if (Test-Path $localRules) {
         Remove-Item $localRules -Force
-        Write-Host "已清除本地 .clauderules" -ForegroundColor Green
+        Write-Host "已清除本地 .geminirules" -ForegroundColor Green
     } else {
         Write-Host "沒有本地設定" -ForegroundColor Yellow
     }
@@ -435,9 +446,9 @@ function Clear-LocalPrompt {
 
 # 清除全域 prompt
 function Clear-GlobalPrompt {
-    $globalClaudeMd = Join-Path $env:USERPROFILE ".claude\CLAUDE.md"
-    if (Test-Path $globalClaudeMd) {
-        Remove-Item $globalClaudeMd -Force
+    $globalGeminiMd = Join-Path $env:USERPROFILE ".gemini\GEMINI.md"
+    if (Test-Path $globalGeminiMd) {
+        Remove-Item $globalGeminiMd -Force
         Write-Host "已清除全域 Prompt 設定" -ForegroundColor Green
     } else {
         Write-Host "沒有全域設定" -ForegroundColor Yellow
@@ -447,13 +458,13 @@ function Clear-GlobalPrompt {
 # 顯示目前設定狀態
 function Show-PromptStatus {
     Write-Host ""
-    Write-Host "=== Prompt 設定狀態 ===" -ForegroundColor Cyan
+    Write-Host "=== Gemini Prompt 設定狀態 ===" -ForegroundColor Cyan
 
-    $globalClaudeMd = Join-Path $env:USERPROFILE ".claude\CLAUDE.md"
-    if (Test-Path $globalClaudeMd) {
-        $content = Get-Content $globalClaudeMd -TotalCount 5 -Encoding UTF8
+    $globalGeminiMd = Join-Path $env:USERPROFILE ".gemini\GEMINI.md"
+    if (Test-Path $globalGeminiMd) {
+        $content = Get-Content $globalGeminiMd -TotalCount 5 -Encoding UTF8
         $langLine = $content | Where-Object { $_ -match "^Language:" }
-        Write-Host "  [全域] $globalClaudeMd" -ForegroundColor Green
+        Write-Host "  [全域] $globalGeminiMd" -ForegroundColor Green
         if ($langLine) {
             Write-Host "         $langLine" -ForegroundColor Gray
         }
@@ -461,7 +472,7 @@ function Show-PromptStatus {
         Write-Host "  [全域] 未設定" -ForegroundColor Yellow
     }
 
-    $localRules = Join-Path (Get-Location) ".clauderules"
+    $localRules = Join-Path (Get-Location) ".geminirules"
     if (Test-Path $localRules) {
         $content = Get-Content $localRules -TotalCount 5 -Encoding UTF8
         $langLine = $content | Where-Object { $_ -match "^Language:" }
@@ -486,7 +497,7 @@ function Show-PromptStatus {
 }
 
 # 設定全域 prompt（互動）
-function Set-GlobalClaudePrompt {
+function Set-GlobalGeminiPrompt {
     $language = Select-Language
     if ([string]::IsNullOrEmpty($language)) {
         Write-Host "已取消" -ForegroundColor Red
@@ -502,7 +513,7 @@ function Set-GlobalClaudePrompt {
 
     Write-Host ""
     Write-Host "已設定全域 Prompt: $language" -ForegroundColor Green
-    Write-Host "此設定將套用於所有專案（除非有本地 .clauderules）" -ForegroundColor Yellow
+    Write-Host "此設定將套用於所有專案（除非有本地 .geminirules）" -ForegroundColor Yellow
 }
 
 # 設定擴展參數
@@ -535,19 +546,19 @@ function Set-ExtensionConfig {
 # ============================================
 # 歡迎訊息（僅首次顯示）
 # ============================================
-if (-not $env:CLAUDE_PROMPT_LOADED) {
-    $env:CLAUDE_PROMPT_LOADED = "1"
+if (-not $env:GEMINI_PROMPT_LOADED) {
+    $env:GEMINI_PROMPT_LOADED = "1"
     Write-Host ""
-    Write-Host "Claude Prompt 系統已就緒 (v4.1)" -ForegroundColor Green
+    Write-Host "Gemini Prompt 系統已就緒 (v4.1)" -ForegroundColor Green
     Write-Host ""
     Write-Host "使用方式：" -ForegroundColor Cyan
-    Write-Host "  claude              # 自動詢問是否載入 prompt" -ForegroundColor White
-    Write-Host "  claude -s           # 跳過 prompt，使用原生模式" -ForegroundColor White
-    Write-Host "  claude -p           # 強制重新選擇 prompt" -ForegroundColor White
+    Write-Host "  gemini              # 自動詢問是否載入 prompt" -ForegroundColor White
+    Write-Host "  gemini -s           # 跳過 prompt，使用原生模式" -ForegroundColor White
+    Write-Host "  gemini -p           # 強制重新選擇 prompt" -ForegroundColor White
     Write-Host ""
     Write-Host "輔助指令：" -ForegroundColor Cyan
     Write-Host "  Show-PromptStatus            # 查看目前設定" -ForegroundColor Gray
-    Write-Host "  Set-GlobalClaudePrompt       # 設定全域 prompt" -ForegroundColor Gray
+    Write-Host "  Set-GlobalGeminiPrompt       # 設定全域 prompt" -ForegroundColor Gray
     Write-Host "  Set-ExtensionConfig dachan   # 設定擴展參數" -ForegroundColor Gray
     Write-Host "  Clear-LocalPrompt            # 清除本地設定" -ForegroundColor Gray
     Write-Host "  Clear-GlobalPrompt           # 清除全域設定" -ForegroundColor Gray

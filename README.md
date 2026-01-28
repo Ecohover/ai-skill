@@ -1,147 +1,57 @@
-# Claude Code Prompt 管理系統
+# AI Code Prompt 管理系統
 
-用於管理與 AI 協作開發時的 prompt 規則，支援分層疊加。
+這是一個用於 AI 協作開發的 Prompt 規則管理庫。
+透過分層疊加 (Layered Stacking) 的方式，讓不同的 AI 工具 (Claude, Gemini) 都能載入統一的開發規範。
 
-## 安裝
+## 支援的 AI 客戶端
 
-### Windows (PowerShell)
+請進入對應資料夾查看安裝說明：
 
-```powershell
-# 1. Clone 到任意位置
-git clone https://github.com/Ecohover/claude-prompts.git
-cd claude-prompts
+*   **[Gemini Client](./clients/gemini/README.md)** (Windows PowerShell)
+*   **[Claude Client](./clients/claude/README.md)** (Windows / Mac / Linux)
 
-# 2. 執行安裝腳本
-.\install.ps1
+## 核心架構
 
-# 3. 重新開啟 PowerShell
-```
-
-### Mac / Linux (Bash/Zsh)
-
-```bash
-# 1. Clone 到任意位置
-git clone https://github.com/Ecohover/claude-prompts.git
-cd claude-prompts
-
-# 2. 執行安裝腳本
-chmod +x install.sh
-./install.sh
-
-# 3. 重新開啟終端機，或執行
-source ~/.zshrc  # 或 ~/.bashrc
-```
-
-### 解除安裝
-
-```powershell
-# Windows
-.\install.ps1 -Uninstall
-```
-
-```bash
-# Mac/Linux
-./install.sh --uninstall
-```
-
-## 目錄結構
+Prompt 規則統一存放於此專案根目錄，供所有客戶端共用。
 
 ```
-C:\prompts\
-├── README.md                 # 本說明文件
-├── loader.ps1                # PowerShell 載入腳本
+.
+├── common/                     # Level 1: 通用規則 (Clean Code, 協作規範)
+│   └── collaboration.md
 │
-├── common/                   # 跨語言通用規則
-│   └── collaboration.md      # AI 協作基本原則
-│
-├── languages/                # 語言專屬規則
+├── languages/                  # Level 2: 語言基礎規範
 │   ├── dotnet/
-│   │   ├── base.md           # .NET 基礎規範
-│   │   └── extensions/       # 專案擴展
-│   │       └── dachan.md     # 大成專案規範
-│   │
+│   │   ├── base.md
+│   │   └── extensions/         # Level 3: 專案特定擴展 (架構, 私有庫)
+│   │       └── dachan.md
 │   └── python/
-│       ├── base.md           # Python 基礎規範
-│       └── extensions/
+│       └── ...
 │
-└── modules/                  # 可選模組（套件/框架規則）
+└── modules/                    # Level 4: 選用模組 (DB, 工具庫)
     └── mongodb.md
 ```
 
-## 載入順序
+## 組合邏輯
 
-```
-common/* → languages/{lang}/base.md → extensions/{project}.md → modules/*
-```
+當您使用客戶端工具 (如 `gemini` 或 `claude`) 選擇 Prompt 時，系統會依照以下順序組合檔案：
 
-## 使用方式
+1.  **Metadata**: 自動生成的標頭 (時間、配置資訊)。
+2.  **Common**: 載入 `common/` 下的所有 `.md` 檔案。
+3.  **Language Base**: 載入 `languages/{selected_lang}/base.md`。
+4.  **Extension (Optional)**: 載入 `languages/{selected_lang}/extensions/{selected_ext}.md`。
+    *   支援變數替換 (如 `{{DACHAN_COMMONUTILS_PATH}}`)。
+5.  **Modules (Optional)**: 載入 `modules/{selected_mod}.md`。
 
-安裝後，`claude` 指令會自動詢問是否載入 prompt。
+## 如何新增規則
 
-### 基本指令
+### 新增語言 (Language)
+1. 在 `languages/` 下建立新資料夾 (如 `golang`)。
+2. 建立 `base.md`，定義該語言的基礎開發規範。
 
-```bash
-claude              # 首次使用時詢問是否載入 prompt
-claude -s           # 跳過 prompt，使用原生模式
-claude -p           # 強制重新選擇 prompt
-```
+### 新增擴展 (Extension)
+1. 在語言資料夾下的 `extensions/` 目錄中建立 `.md` 檔案 (如 `dachan.md`)。
+2. 若需要動態路徑，可使用 `{{VAR_NAME}}` 佔位符，並在客戶端的 `loader` 腳本中設定對應邏輯。
 
-### 輔助指令
-
-| Windows (PowerShell) | Mac/Linux (Bash) | 說明 |
-|---------------------|------------------|------|
-| `Show-PromptStatus` | `show_prompt_status` | 查看目前設定 |
-| `Set-GlobalClaudePrompt` | `set_global_claude_prompt` | 設定全域 prompt |
-| `Clear-LocalPrompt` | `clear_local_prompt` | 清除本地設定 |
-| `Clear-GlobalPrompt` | `clear_global_prompt` | 清除全域設定 |
-
-### 運作邏輯
-
-1. 執行 `claude` 時：
-   - 若本地有 `.clauderules` → 直接使用
-   - 若全域有設定 → 直接使用
-   - 若都沒有 → 詢問是否載入 prompt
-
-2. 使用 `claude -p` 可強制重新選擇 prompt
-3. 使用 `claude -s` 可跳過所有 prompt 設定
-
-### 5. 輸出位置
-
-- **本地**：當前目錄的 `.clauderules`
-- **全域**：`~/.claude/CLAUDE.md`
-
-Claude Code 啟動時會自動讀取。
-
-### 6. 識別目前 Prompt
-
-組合後的 prompt 開頭會有 metadata：
-
-```markdown
-<!-- PROMPT CONFIG
-Language: dotnet
-Extension: dachan
-Modules: mongodb
-Generated: 2026-01-28 12:00:00
--->
-```
-
-## 新增規則
-
-### 新增語言
-
-1. 在 `languages/` 下建立語言目錄
-2. 建立 `base.md` 定義基礎規範
-3. 可選：建立 `extensions/` 目錄放置專案擴展
-
-### 新增模組
-
-在 `modules/` 下建立 `{module-name}.md`，模組可跨語言共用。
-
-## 命名規範
-
-| 類型 | 路徑格式 | 範例 |
-|------|----------|------|
-| 通用規則 | `common/{name}.md` | `common/collaboration.md` |
-| 語言基礎 | `languages/{lang}/base.md` | `languages/dotnet/base.md` |
-| 專案擴展 | `languages/{lang}/extensions/{project}.md` | `languages/dotnet/extensions/dachan.md` |
-| 模組 | `modules/{module}.md` | `modules/mongodb.md` |
+### 新增模組 (Module)
+1. 在 `modules/` 下建立 `.md` 檔案。
+2. 模組應盡量設計為「跨語言通用」或「技術特定但語言無關」的規範 (如 SQL 命名規範)。

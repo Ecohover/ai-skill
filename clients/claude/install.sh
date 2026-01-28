@@ -7,6 +7,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOADER_PATH="$SCRIPT_DIR/loader.sh"
 ENV_VAR_NAME="CLAUDE_PROMPTS_PATH"
+CONFIG_FILE="$HOME/.claude-prompts-config"
 
 # 顏色定義
 RED='\033[0;31m'
@@ -44,12 +45,30 @@ if [[ "$1" == "--uninstall" ]] || [[ "$1" == "-u" ]]; then
     echo ""
     echo -e "${CYAN}=== 解除安裝 Claude Prompts ===${NC}"
     echo ""
-    echo -e "${YELLOW}請手動編輯 $SHELL_PROFILE 移除以下行：${NC}"
-    echo -e "${GRAY}  export $ENV_VAR_NAME=\"...\"${NC}"
-    echo -e "${GRAY}  source \"$LOADER_PATH\"${NC}"
+
+    # 移除設定檔
+    if [[ -f "$CONFIG_FILE" ]]; then
+        rm "$CONFIG_FILE"
+        echo -e "${GREEN}  已移除設定檔: $CONFIG_FILE${NC}"
+    fi
+
+    # 從 Profile 移除
+    if [[ -f "$SHELL_PROFILE" ]]; then
+        # 建立備份
+        cp "$SHELL_PROFILE" "$SHELL_PROFILE.bak"
+
+        # 移除相關行
+        sed -i.tmp '/# Claude Prompts Loader/d' "$SHELL_PROFILE"
+        sed -i.tmp "/export $ENV_VAR_NAME=/d" "$SHELL_PROFILE"
+        sed -i.tmp "/source.*loader\.sh/d" "$SHELL_PROFILE"
+        rm -f "$SHELL_PROFILE.tmp"
+
+        echo -e "${GREEN}  已從 Profile 移除載入腳本${NC}"
+        echo -e "${GRAY}  備份檔案: $SHELL_PROFILE.bak${NC}"
+    fi
+
     echo ""
-    echo -e "${YELLOW}執行以下指令開啟：${NC}"
-    echo -e "${GRAY}  nano $SHELL_PROFILE${NC}"
+    echo -e "${GREEN}解除安裝完成！請重新開啟終端機。${NC}"
     echo ""
     exit 0
 fi
@@ -106,9 +125,9 @@ echo -e "${GRAY}  source $SHELL_PROFILE${NC}"
 echo ""
 echo -e "${YELLOW}然後使用：${NC}"
 echo ""
-echo -e "${WHITE}  ccp     # 互動式選擇並啟動 Claude${NC}"
-echo -e "${WHITE}  ccpd    # 快速啟動 .NET${NC}"
-echo -e "${WHITE}  ccpp    # 快速啟動 Python${NC}"
+echo -e "${WHITE}  claude              # 自動詢問是否載入 prompt${NC}"
+echo -e "${WHITE}  claude -s           # 跳過 prompt，使用原生模式${NC}"
+echo -e "${WHITE}  claude -p           # 強制重新選擇 prompt${NC}"
 echo ""
 echo -e "${CYAN}========================================${NC}"
 echo ""
