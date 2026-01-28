@@ -76,43 +76,34 @@ common/* → languages/{lang}/base.md → extensions/{project}.md → modules/*
 
 ## 使用方式
 
-### 1. 啟動指令
+安裝後，`claude` 指令會自動詢問是否載入 prompt。
 
-```powershell
-# 互動式選擇並啟動 claude
-ccp
+### 基本指令
 
-# 快速啟動 .NET
-ccpd
-
-# 快速啟動 Python
-ccpp
-
-# 指定完整配置
-ccp -Language dotnet -Extension dachan -Modules mongodb
+```bash
+claude              # 首次使用時詢問是否載入 prompt
+claude -s           # 跳過 prompt，使用原生模式
+claude -p           # 強制重新選擇 prompt
 ```
 
-### 3. 設定/切換 Prompt（不啟動 claude）
+### 輔助指令
 
-```powershell
-# 互動式切換 prompt
-csp
+| Windows (PowerShell) | Mac/Linux (Bash) | 說明 |
+|---------------------|------------------|------|
+| `Show-PromptStatus` | `show_prompt_status` | 查看目前設定 |
+| `Set-GlobalClaudePrompt` | `set_global_claude_prompt` | 設定全域 prompt |
+| `Clear-LocalPrompt` | `clear_local_prompt` | 清除本地設定 |
+| `Clear-GlobalPrompt` | `clear_global_prompt` | 清除全域設定 |
 
-# 查看目前設定
-Show-PromptStatus
+### 運作邏輯
 
-# 清除全域設定
-Clear-GlobalPrompt
-```
+1. 執行 `claude` 時：
+   - 若本地有 `.clauderules` → 直接使用
+   - 若全域有設定 → 直接使用
+   - 若都沒有 → 詢問是否載入 prompt
 
-### 4. 全域設定
-
-```powershell
-# 設定 .NET 為全域預設（所有專案共用）
-ccpd -Global
-
-# 本地 .clauderules 會覆蓋全域設定
-```
+2. 使用 `claude -p` 可強制重新選擇 prompt
+3. 使用 `claude -s` 可跳過所有 prompt 設定
 
 ### 5. 輸出位置
 

@@ -1,176 +1,119 @@
 # Claude Code Prompt 載入腳本
-# 版本：v3.0 (可攜式)
+# 版本：v4.0 (自動載入)
 
 # ============================================
 # 配置區（動態路徑）
 # ============================================
-# 優先使用環境變數，否則使用腳本所在目錄
 if ($env:CLAUDE_PROMPTS_PATH) {
     $PROMPTS_BASE_PATH = $env:CLAUDE_PROMPTS_PATH
 } else {
     $PROMPTS_BASE_PATH = $PSScriptRoot
 }
 
+# 儲存原生 claude 指令路徑
+$script:CLAUDE_NATIVE = (Get-Command claude -CommandType Application -ErrorAction SilentlyContinue).Source
+
 # ============================================
-# 主函數：啟動 Claude Code
+# 主函數：覆蓋 claude 指令
 # ============================================
-function Start-ClaudeWithPrompts {
+function claude {
     param(
-        [Parameter(Mandatory=$false)]
-        [string]$Language = "",
-
-        [Parameter(Mandatory=$false)]
-        [string]$Extension = "",
-
-        [Parameter(Mandatory=$false)]
-        [string[]]$Modules = @(),
-
-        [Parameter(Mandatory=$false)]
-        [switch]$Interactive,
-
-        [Parameter(Mandatory=$false)]
-        [switch]$Global  # 新增：設定為全域
+        [Parameter(Position=0, ValueFromRemainingArguments=$true)]
+        [string[]]$Arguments
     )
 
-    # 互動模式
-    if ([string]::IsNullOrEmpty($Language) -or $Interactive) {
-        $Language = Select-Language
-        if ([string]::IsNullOrEmpty($Language)) {
-            Write-Host "已取消" -ForegroundColor Red
-            return
-        }
-    }
-
-    # 檢查語言目錄
-    $languagePath = Join-Path $PROMPTS_BASE_PATH "languages\$Language"
-    if (-not (Test-Path $languagePath)) {
-        Write-Host "找不到語言目錄: $languagePath" -ForegroundColor Red
+    # 檢查是否有 --skip 或 -s 參數
+    if ($Arguments -contains "--skip" -or $Arguments -contains "-s") {
+        $filteredArgs = $Arguments | Where-Object { $_ -ne "--skip" -and $_ -ne "-s" }
+        Write-Host "啟動原生 Claude..." -ForegroundColor Gray
+        & $script:CLAUDE_NATIVE @filteredArgs
         return
     }
 
-    # 選擇擴展
-    if ([string]::IsNullOrEmpty($Extension) -or $Interactive) {
-        $Extension = Select-Extension -LanguagePath $languagePath
+    # 檢查是否有 --prompt 或 -p 參數（強制選擇 prompt）
+    $forcePrompt = $Arguments -contains "--prompt" -or $Arguments -contains "-p"
+    if ($forcePrompt) {
+        $Arguments = $Arguments | Where-Object { $_ -ne "--prompt" -and $_ -ne "-p" }
     }
 
-    # 選擇模組
-    if ($Modules.Count -eq 0 -and $Interactive) {
-        $Modules = Select-Modules
-    }
-
-    # 組合 Prompt
-    $combinedPrompt = Build-CombinedPrompt -Language $Language -Extension $Extension -Modules $Modules
-
-    if ([string]::IsNullOrEmpty($combinedPrompt)) {
-        Write-Host "無法建立 Prompt" -ForegroundColor Red
-        return
-    }
-
-    if ($Global) {
-        # 全域模式：寫入 Claude 全域設定
-        Set-GlobalPrompt -Prompt $combinedPrompt
-        Write-Host ""
-        Write-Host "已設定全域 Prompt:" -ForegroundColor Green
-        Write-Host "   語言: $Language" -ForegroundColor Cyan
-        if (-not [string]::IsNullOrEmpty($Extension)) {
-            Write-Host "   擴展: $Extension" -ForegroundColor Cyan
-        }
-        if ($Modules.Count -gt 0) {
-            Write-Host "   模組: $($Modules -join ', ')" -ForegroundColor Cyan
-        }
-        Write-Host ""
-        Write-Host "此設定將套用於所有專案（除非有本地 .clauderules）" -ForegroundColor Yellow
-    }
-    else {
-        # 本地模式：寫入 .clauderules
-        $rulesFile = Join-Path (Get-Location) ".clauderules"
-        Set-Content -Path $rulesFile -Value $combinedPrompt -Encoding UTF8
-
-        Write-Host ""
-        Write-Host "已載入 Prompt 規則:" -ForegroundColor Green
-        Write-Host "   語言: $Language" -ForegroundColor Cyan
-        if (-not [string]::IsNullOrEmpty($Extension)) {
-            Write-Host "   擴展: $Extension" -ForegroundColor Cyan
-        }
-        if ($Modules.Count -gt 0) {
-            Write-Host "   模組: $($Modules -join ', ')" -ForegroundColor Cyan
-        }
-        Write-Host "   檔案: $rulesFile" -ForegroundColor Gray
-        Write-Host ""
-
-        # 啟動 Claude Code
-        claude
-    }
-}
-
-# ============================================
-# 設定全域 Prompt
-# ============================================
-function Set-GlobalPrompt {
-    param([string]$Prompt)
-
-    # 使用 claude config 設定全域 system prompt
-    # 需要將換行轉換為單行（使用 \n）
-    $escapedPrompt = $Prompt -replace "`r`n", "\n" -replace "`n", "\n"
-
-    # 寫入全域 CLAUDE.md
-    $globalClaudeDir = Join-Path $env:USERPROFILE ".claude"
-    if (-not (Test-Path $globalClaudeDir)) {
-        New-Item -ItemType Directory -Path $globalClaudeDir -Force | Out-Null
-    }
-
-    $globalClaudeMd = Join-Path $globalClaudeDir "CLAUDE.md"
-    Set-Content -Path $globalClaudeMd -Value $Prompt -Encoding UTF8
-
-    Write-Host "   已寫入: $globalClaudeMd" -ForegroundColor Gray
-}
-
-# ============================================
-# 清除全域設定
-# ============================================
-function Clear-GlobalPrompt {
-    $globalClaudeMd = Join-Path $env:USERPROFILE ".claude\CLAUDE.md"
-    if (Test-Path $globalClaudeMd) {
-        Remove-Item $globalClaudeMd -Force
-        Write-Host "已清除全域 Prompt 設定" -ForegroundColor Green
-    }
-    else {
-        Write-Host "沒有全域設定" -ForegroundColor Yellow
-    }
-}
-
-# ============================================
-# 顯示目前設定狀態
-# ============================================
-function Show-PromptStatus {
-    Write-Host ""
-    Write-Host "=== Prompt 設定狀態 ===" -ForegroundColor Cyan
-
-    # 檢查全域
-    $globalClaudeMd = Join-Path $env:USERPROFILE ".claude\CLAUDE.md"
-    if (Test-Path $globalClaudeMd) {
-        $content = Get-Content $globalClaudeMd -Raw -Encoding UTF8
-        $firstLine = ($content -split "`n")[0]
-        Write-Host "  [全域] $globalClaudeMd" -ForegroundColor Green
-        Write-Host "         $firstLine" -ForegroundColor Gray
-    }
-    else {
-        Write-Host "  [全域] 未設定" -ForegroundColor Yellow
-    }
-
-    # 檢查本地
+    # 檢查本地是否已有 .clauderules
     $localRules = Join-Path (Get-Location) ".clauderules"
-    if (Test-Path $localRules) {
-        $content = Get-Content $localRules -Raw -Encoding UTF8
-        $firstLine = ($content -split "`n")[0]
-        Write-Host "  [本地] $localRules" -ForegroundColor Green
-        Write-Host "         $firstLine" -ForegroundColor Gray
-    }
-    else {
-        Write-Host "  [本地] 未設定" -ForegroundColor Yellow
+    $hasLocalRules = Test-Path $localRules
+
+    # 檢查全域是否已有設定
+    $globalRules = Join-Path $env:USERPROFILE ".claude\CLAUDE.md"
+    $hasGlobalRules = Test-Path $globalRules
+
+    # 決定是否需要選擇 prompt
+    if ($forcePrompt -or (-not $hasLocalRules -and -not $hasGlobalRules)) {
+        # 詢問用戶
+        Write-Host ""
+        Write-Host "=== Claude Prompt 設定 ===" -ForegroundColor Cyan
+        Write-Host "  [1] 選擇 Prompt 規則" -ForegroundColor White
+        Write-Host "  [2] 不使用 Prompt（原生模式）" -ForegroundColor White
+        if ($hasGlobalRules) {
+            Write-Host "  [3] 使用全域設定" -ForegroundColor White
+        }
+        Write-Host ""
+
+        $choice = Read-Host "請選擇"
+
+        switch ($choice) {
+            "1" {
+                # 互動選擇 prompt
+                $language = Select-Language
+                if ([string]::IsNullOrEmpty($language)) {
+                    Write-Host "已取消，啟動原生 Claude..." -ForegroundColor Yellow
+                    & $script:CLAUDE_NATIVE @Arguments
+                    return
+                }
+
+                $languagePath = Join-Path $PROMPTS_BASE_PATH "languages\$language"
+                $extension = Select-Extension -LanguagePath $languagePath
+                $modules = Select-Modules
+
+                $combinedPrompt = Build-CombinedPrompt -Language $language -Extension $extension -Modules $modules
+                Set-Content -Path $localRules -Value $combinedPrompt -Encoding UTF8
+
+                Write-Host ""
+                Write-Host "已載入 Prompt: $language" -ForegroundColor Green
+                if (-not [string]::IsNullOrEmpty($extension)) {
+                    Write-Host "   擴展: $extension" -ForegroundColor Cyan
+                }
+            }
+            "2" {
+                Write-Host "啟動原生 Claude..." -ForegroundColor Gray
+                & $script:CLAUDE_NATIVE @Arguments
+                return
+            }
+            "3" {
+                if ($hasGlobalRules) {
+                    Write-Host "使用全域設定..." -ForegroundColor Gray
+                } else {
+                    Write-Host "啟動原生 Claude..." -ForegroundColor Gray
+                }
+                & $script:CLAUDE_NATIVE @Arguments
+                return
+            }
+            default {
+                Write-Host "啟動原生 Claude..." -ForegroundColor Gray
+                & $script:CLAUDE_NATIVE @Arguments
+                return
+            }
+        }
+    } elseif ($hasLocalRules) {
+        # 顯示目前使用的設定
+        $firstLines = Get-Content $localRules -TotalCount 5 -Encoding UTF8
+        $configLine = $firstLines | Where-Object { $_ -match "^Language:" }
+        if ($configLine) {
+            Write-Host "使用本地 Prompt: $($configLine -replace 'Language:\s*', '')" -ForegroundColor Gray
+        }
+    } elseif ($hasGlobalRules) {
+        Write-Host "使用全域 Prompt 設定" -ForegroundColor Gray
     }
 
     Write-Host ""
+    & $script:CLAUDE_NATIVE @Arguments
 }
 
 # ============================================
@@ -262,7 +205,7 @@ function Select-Modules {
     }
 
     Write-Host ""
-    Write-Host "=== 選擇額外模組 (多選，空白結束) ===" -ForegroundColor Cyan
+    Write-Host "=== 選擇額外模組 (多選，Enter 結束) ===" -ForegroundColor Cyan
 
     for ($i = 0; $i -lt $modules.Count; $i++) {
         Write-Host "  [$($i + 1)] $($modules[$i])" -ForegroundColor White
@@ -307,7 +250,7 @@ function Build-CombinedPrompt {
     Write-Host ""
     Write-Host "載入中..." -ForegroundColor Gray
 
-    # 0. 加入 metadata 標頭
+    # Metadata
     $modulesStr = if ($Modules.Count -gt 0) { $Modules -join ", " } else { "none" }
     $extensionStr = if ([string]::IsNullOrEmpty($Extension)) { "none" } else { $Extension }
     $metadata = @"
@@ -364,102 +307,117 @@ Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
 }
 
 # ============================================
-# 重新載入 Prompt（不啟動 claude）
+# 設定全域 Prompt
 # ============================================
-function Set-ClaudePrompt {
-    param(
-        [Parameter(Mandatory=$false)]
-        [string]$Language = "",
+function Set-GlobalPrompt {
+    param([string]$Prompt)
 
-        [Parameter(Mandatory=$false)]
-        [string]$Extension = "",
-
-        [Parameter(Mandatory=$false)]
-        [string[]]$Modules = @(),
-
-        [Parameter(Mandatory=$false)]
-        [switch]$Global
-    )
-
-    # 互動模式
-    if ([string]::IsNullOrEmpty($Language)) {
-        $Language = Select-Language
-        if ([string]::IsNullOrEmpty($Language)) {
-            Write-Host "已取消" -ForegroundColor Red
-            return
-        }
-        $Extension = Select-Extension -LanguagePath (Join-Path $PROMPTS_BASE_PATH "languages\$Language")
-        $Modules = Select-Modules
+    $globalClaudeDir = Join-Path $env:USERPROFILE ".claude"
+    if (-not (Test-Path $globalClaudeDir)) {
+        New-Item -ItemType Directory -Path $globalClaudeDir -Force | Out-Null
     }
 
-    # 組合 Prompt
-    $combinedPrompt = Build-CombinedPrompt -Language $Language -Extension $Extension -Modules $Modules
+    $globalClaudeMd = Join-Path $globalClaudeDir "CLAUDE.md"
+    Set-Content -Path $globalClaudeMd -Value $Prompt -Encoding UTF8
 
-    if ([string]::IsNullOrEmpty($combinedPrompt)) {
-        Write-Host "無法建立 Prompt" -ForegroundColor Red
+    Write-Host "   已寫入: $globalClaudeMd" -ForegroundColor Gray
+}
+
+# ============================================
+# 輔助指令
+# ============================================
+
+# 清除本地 prompt
+function Clear-LocalPrompt {
+    $localRules = Join-Path (Get-Location) ".clauderules"
+    if (Test-Path $localRules) {
+        Remove-Item $localRules -Force
+        Write-Host "已清除本地 .clauderules" -ForegroundColor Green
+    } else {
+        Write-Host "沒有本地設定" -ForegroundColor Yellow
+    }
+}
+
+# 清除全域 prompt
+function Clear-GlobalPrompt {
+    $globalClaudeMd = Join-Path $env:USERPROFILE ".claude\CLAUDE.md"
+    if (Test-Path $globalClaudeMd) {
+        Remove-Item $globalClaudeMd -Force
+        Write-Host "已清除全域 Prompt 設定" -ForegroundColor Green
+    } else {
+        Write-Host "沒有全域設定" -ForegroundColor Yellow
+    }
+}
+
+# 顯示目前設定狀態
+function Show-PromptStatus {
+    Write-Host ""
+    Write-Host "=== Prompt 設定狀態 ===" -ForegroundColor Cyan
+
+    $globalClaudeMd = Join-Path $env:USERPROFILE ".claude\CLAUDE.md"
+    if (Test-Path $globalClaudeMd) {
+        $content = Get-Content $globalClaudeMd -TotalCount 5 -Encoding UTF8
+        $langLine = $content | Where-Object { $_ -match "^Language:" }
+        Write-Host "  [全域] $globalClaudeMd" -ForegroundColor Green
+        if ($langLine) {
+            Write-Host "         $langLine" -ForegroundColor Gray
+        }
+    } else {
+        Write-Host "  [全域] 未設定" -ForegroundColor Yellow
+    }
+
+    $localRules = Join-Path (Get-Location) ".clauderules"
+    if (Test-Path $localRules) {
+        $content = Get-Content $localRules -TotalCount 5 -Encoding UTF8
+        $langLine = $content | Where-Object { $_ -match "^Language:" }
+        Write-Host "  [本地] $localRules" -ForegroundColor Green
+        if ($langLine) {
+            Write-Host "         $langLine" -ForegroundColor Gray
+        }
+    } else {
+        Write-Host "  [本地] 未設定" -ForegroundColor Yellow
+    }
+
+    Write-Host ""
+}
+
+# 設定全域 prompt（互動）
+function Set-GlobalClaudePrompt {
+    $language = Select-Language
+    if ([string]::IsNullOrEmpty($language)) {
+        Write-Host "已取消" -ForegroundColor Red
         return
     }
 
-    if ($Global) {
-        Set-GlobalPrompt -Prompt $combinedPrompt
-        Write-Host ""
-        Write-Host "已更新全域 Prompt" -ForegroundColor Green
-    }
-    else {
-        $rulesFile = Join-Path (Get-Location) ".clauderules"
-        Set-Content -Path $rulesFile -Value $combinedPrompt -Encoding UTF8
-        Write-Host ""
-        Write-Host "已更新本地 .clauderules" -ForegroundColor Green
-        Write-Host "請在 Claude 中輸入 /refresh 重新載入規則" -ForegroundColor Yellow
-    }
+    $languagePath = Join-Path $PROMPTS_BASE_PATH "languages\$language"
+    $extension = Select-Extension -LanguagePath $languagePath
+    $modules = Select-Modules
+
+    $combinedPrompt = Build-CombinedPrompt -Language $language -Extension $extension -Modules $modules
+    Set-GlobalPrompt -Prompt $combinedPrompt
+
+    Write-Host ""
+    Write-Host "已設定全域 Prompt: $language" -ForegroundColor Green
+    Write-Host "此設定將套用於所有專案（除非有本地 .clauderules）" -ForegroundColor Yellow
 }
 
 # ============================================
-# 別名設定
+# 歡迎訊息（僅首次顯示）
 # ============================================
-Set-Alias ccp Start-ClaudeWithPrompts
-Set-Alias csp Set-ClaudePrompt
-
-# 快速啟動
-function Start-ClaudeDotnet {
-    param(
-        [string]$Extension = "",
-        [string[]]$Modules = @(),
-        [switch]$Global
-    )
-    Start-ClaudeWithPrompts -Language "dotnet" -Extension $Extension -Modules $Modules -Global:$Global -Interactive:($Extension -eq "")
+if (-not $env:CLAUDE_PROMPT_LOADED) {
+    $env:CLAUDE_PROMPT_LOADED = "1"
+    Write-Host ""
+    Write-Host "Claude Prompt 系統已就緒 (v4.0)" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "使用方式：" -ForegroundColor Cyan
+    Write-Host "  claude              # 自動詢問是否載入 prompt" -ForegroundColor White
+    Write-Host "  claude -s           # 跳過 prompt，使用原生模式" -ForegroundColor White
+    Write-Host "  claude -p           # 強制重新選擇 prompt" -ForegroundColor White
+    Write-Host ""
+    Write-Host "輔助指令：" -ForegroundColor Cyan
+    Write-Host "  Show-PromptStatus       # 查看目前設定" -ForegroundColor Gray
+    Write-Host "  Set-GlobalClaudePrompt  # 設定全域 prompt" -ForegroundColor Gray
+    Write-Host "  Clear-LocalPrompt       # 清除本地設定" -ForegroundColor Gray
+    Write-Host "  Clear-GlobalPrompt      # 清除全域設定" -ForegroundColor Gray
+    Write-Host ""
 }
-
-function Start-ClaudePython {
-    param(
-        [string]$Extension = "",
-        [string[]]$Modules = @(),
-        [switch]$Global
-    )
-    Start-ClaudeWithPrompts -Language "python" -Extension $Extension -Modules $Modules -Global:$Global -Interactive:($Extension -eq "")
-}
-
-Set-Alias ccpd Start-ClaudeDotnet
-Set-Alias ccpp Start-ClaudePython
-
-# ============================================
-# 歡迎訊息
-# ============================================
-Write-Host ""
-Write-Host "Claude Prompt 系統已就緒 (v3.0)" -ForegroundColor Green
-Write-Host "  路徑: $PROMPTS_BASE_PATH" -ForegroundColor Gray
-Write-Host ""
-Write-Host "啟動指令：" -ForegroundColor Cyan
-Write-Host "  ccp                   # 互動式選擇並啟動" -ForegroundColor White
-Write-Host "  ccpd                  # 快速啟動 .NET" -ForegroundColor White
-Write-Host "  ccpp                  # 快速啟動 Python" -ForegroundColor White
-Write-Host ""
-Write-Host "設定指令（不啟動 claude）：" -ForegroundColor Cyan
-Write-Host "  csp                   # 切換/更新 prompt 設定" -ForegroundColor White
-Write-Host "  Show-PromptStatus     # 查看目前設定" -ForegroundColor White
-Write-Host "  Clear-GlobalPrompt    # 清除全域設定" -ForegroundColor White
-Write-Host ""
-Write-Host "全域設定：" -ForegroundColor Cyan
-Write-Host "  ccpd -Global          # 設定 .NET 為全域預設" -ForegroundColor Gray
-Write-Host "  csp -Global           # 切換全域設定" -ForegroundColor Gray
-Write-Host ""
