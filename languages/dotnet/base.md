@@ -18,19 +18,25 @@
 * **全域常數**：載入後作為常數使用，運行期間不可變更
 * **禁止**：禁止在程式碼中直接呼叫 `Environment.GetEnvironmentVariable()`
 
-## 3. 程式碼風格
+## 3. 格式化規範
+* **命名空間**：統一使用 **File-scoped namespace**（例如 `namespace Dachan.Wms.Services;`），不帶大括號
+* **命名空間間距**：`namespace` 宣告與上方 `using` 指令群之間，以及與下方程式碼之間，**固定僅保留一行空行**
+* **縮排**：使用 **4 個空格**
+* **Using 指令**：放在命名空間外部，保持簡潔
+
+## 4. 程式碼風格
 * **私有欄位**：`_camelCase`
 * **禁止 `this.`**：存取成員時不使用 this 關鍵字
 * **JSON 處理**：使用 Newtonsoft.Json
 * **JSON Casing**：API Request/Response 使用 **camelCase**
 * **非同步**：IO 操作必須使用 Async/Await
 
-## 4. 物件映射規範
+## 5. 物件映射規範
 * **禁止 AutoMapper**：不使用自動映射套件
 * **手動映射**：簡單轉換直接寫在使用處
 * **重複轉換**：超過 3 次的重複映射，抽取至**自定義工廠類別**處理
 
-## 5. 充血模型規範
+## 6. 充血模型規範
 * **適用範圍**：僅限處理**物件本身參數**的內部邏輯
 * **禁止**：不得牽扯外部資料、外部服務、或跨物件邏輯
 * **範例**：狀態驗證、欄位計算、格式轉換
@@ -50,18 +56,27 @@ public class Order
 }
 ```
 
-## 6. Enum 規範
+## 7. 集合與封裝 (CA1002 / CA2227)
+* **集合型別**：公用屬性應使用 `ICollection<T>`、`IEnumerable<T>` 或 `IReadOnlyCollection<T>`，禁止直接公開 `List<T>`
+* **唯讀化**：集合屬性應設為唯讀或使用 **`init;`**，防止外部代碼替換整個集合實例
+* **範例**：
+```csharp
+public ICollection<OrderDetail> Details { get; init; } = new List<OrderDetail>();
+```
+
+## 8. Enum 規範
 * **定義**：分類欄位必須使用 Enum
+* **成員命名**：必須使用 **PascalCase**，禁止使用底線（例如 `HalfH` 而非 `Half_H`）
 * **傳輸**：API Request/Response 使用 string
 * **儲存**：資料庫儲存使用 string
 * **禁止**：禁止用 int 表示 Enum 值
 
-## 7. 異常處理
+## 9. 異常處理
 * **簡易標準**：使用 .NET 內建 Exception 類型
 * **拋出時機**：商業邏輯錯誤、驗證失敗、資源不存在
 * **全域處理**：透過 Middleware 統一捕捉並回傳格式化錯誤
 
-## 8. HTTP Status Code
+## 10. HTTP Status Code
 使用標準語意：
 | 狀態碼 | 用途 |
 |--------|------|
@@ -73,11 +88,11 @@ public class Order
 | 404 | 資源不存在 |
 | 500 | 伺服器內部錯誤 |
 
-## 9. OpenAPI 規範
+## 11. OpenAPI 規範
 * **工具**：使用 `Microsoft.AspNetCore.OpenApi`
 * **文件**：對外 Action 與 DTO 必須有 `<summary>` 繁體中文說明
 
-## 10. XML Documentation
+## 12. XML Documentation
 * **範圍**：所有 `public` 方法
 * **語言**：繁體中文
 * **格式**：
