@@ -6,9 +6,7 @@
 
 ## 專案參考路徑
 
-* **CommonUtils 路徑**：`{{DACHAN_COMMONUTILS_PATH}}`
-
-> 開發過程中若發現可通用的邏輯，會詢問是否需要調整至 CommonUtils。
+> **AI 注意**：開始工作前，請詢問使用者 `Dachan.CommonUtils` 專案在本機的實際路徑（例如 `C:\projects\Dachan.CommonUtils`），並在後續所有涉及此庫的程式碼閱讀或修改時作為參考依據。
 
 ---
 
