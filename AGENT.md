@@ -27,6 +27,16 @@
 | 環境變數 | + `typescript/dachan/env.md` |
 | FE/BE API 合約 | + `core/api-contract.md` |
 
+## Python（Dachan Mock Service / AI Tools）
+
+| 場景 | 必讀 |
+|------|------|
+| 任何 Python 開發（基礎） | `core/principles.md` + `python/base.md` |
+| 新增 API 功能（FastAPI Router/Service/DTO） | + `python/fastapi.md` |
+| **Mock 外部系統 / 對接外部 API** | + `core/external-contract.md` |
+| 環境變數 | + `dotnet/dachan/env.md`（原則相同） |
+| FE/BE API 合約 | + `core/api-contract.md` |
+
 ## 流程 / 品質
 
 | 場景 | 必讀 |
@@ -34,6 +44,7 @@
 | 開始規劃新功能 | `commands/plan.md` |
 | .NET 提交前自審 | `commands/audit-dotnet.md` |
 | TypeScript 提交前自審 | `commands/audit-typescript.md` |
+| Python 提交前自審 | `commands/audit-python.md` |
 
 ---
 
