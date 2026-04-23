@@ -1,40 +1,60 @@
-# AI Code Prompt 管理系統
+# Dachan AI Prompts
 
-用於 AI 協作開發的 Prompt 規則庫。透過分層疊加 (Layered Stacking) 組合出完整的開發規範，供任何 AI 工具直接閱讀使用。
+各專案透過 **git submodule** 引入此規則庫，AI 按需讀取對應檔案。
 
-## 使用方式
+> AI 請讀 `AGENT.md`，不是這份。
 
-將需要的規則檔按順序合併後，交給 AI 閱讀即可。AI 會依據內容自行轉化為開發規範。
+---
 
-## 架構（分層疊加）
+## 加入 Submodule
 
-```
-common/                         # Level 1：通用規則（所有專案都載入）
-  collaboration.md
-
-languages/                      # Level 2：語言基礎規範
-  dotnet/
-    base.md
-    extensions/                 # Level 3：專案特定架構（選用）
-      dachan.md
-  python/
-    base.md
-
-modules/                        # Level 4：技術模組（選用）
-  mongodb.md
+```bash
+git submodule add <repo-url> .prompts
 ```
 
-## 如何新增規則
+clone 後更新：
 
-| 類型 | 路徑 | 說明 |
-|------|------|------|
-| 新語言 | `languages/<語言>/base.md` | 命名慣例、目錄結構、推薦套件 |
-| 新專案擴展 | `languages/<語言>/extensions/<名稱>.md` | 特定架構約束、私有套件規範 |
-| 新功能模組 | `modules/<名稱>.md` | 可跨語言複用的技術規範 |
-| 通用規則 | `common/collaboration.md` | 所有專案共用的編碼標準 |
+```bash
+git submodule update --init
+```
 
-> 若規則可通用於多種語言，放 `modules/`；若語言特定，放 `languages/`。
+---
 
-## 外部專案參考
+## 在各專案中連結規則庫
 
-如有私有套件或外部專案路徑（如 `Dachan.CommonUtils`），規則檔中會提示 AI 向使用者詢問本機實際路徑，不硬編碼任何路徑。
+在專案的 `CLAUDE.md` 或 `.prompt.md` 頂部加入：
+
+```
+規則庫位於 .prompts/，需要時請先讀 .prompts/AGENT.md。
+```
+
+---
+
+## 目錄結構
+
+```
+AGENT.md             ← AI 入口：場景 → 檔案對應表（AI 從這裡開始）
+README.md            ← 本檔：給開發者的說明
+core/
+  principles.md      ← 通用原則（命名/設計/時間）
+  api-contract.md    ← FE/BE 共用 API 合約（分頁/Searches/Enum/錯誤格式）
+dotnet/
+  base.md            ← .NET 基礎（格式/集合/充血模型/物件映射）
+  dachan/
+    structure.md     ← 目錄/Entity/DTO/Controller/Service/Factory
+    error.md         ← ErrorDetail 異常處理
+    query.md         ← QueryOptions / ApplyContainsSearches 模糊查詢
+    logging.md       ← [LoggerMessage] 高效能日誌
+    enum.md          ← [UpperCaseEnum] / Enum 規範
+    env.md           ← 環境變數
+typescript/
+  base.md            ← TypeScript/Vue 3 基礎規則
+  dachan/
+    structure.md     ← Dachan Frontend 目錄/路由/Pinia/打包規範
+    api-module.md    ← API 模組規範（composables/api/modules/）
+    env.md           ← VITE_ 環境變數
+commands/
+  plan.md            ← 開發流程協議（Research→Design→Implement→Verify）
+  audit-dotnet.md    ← .NET 提交前自審清單
+  audit-typescript.md← TypeScript 提交前自審清單
+```
