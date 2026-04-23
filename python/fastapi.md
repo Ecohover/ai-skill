@@ -1,17 +1,17 @@
 # FastAPI 框架規範
 
-## 目錄結構
+## 目錄結構 (src/)
 
-Python 專案採用類 Clean Architecture 的結構：
+Python 專案內部的 `src/` 目錄採用類 Clean Architecture 的結構：
 
-| 目錄 | 職責 | 對應 .NET |
+| 目錄/路徑 | 職責 | 對應 .NET |
 |------|------|----------|
-| `api/routers/` | 定義 Endpoint，僅負責 Request/Response | `Controllers/` |
-| `services/` | 業務邏輯實作（Performer） | `Services/` |
-| `models/` | 資料庫實體（SQLAlchemy / Motor） | `Domain/Entities/` |
-| `schemas/` | Pydantic DTO 定義 | `Models/DTOs/` |
-| `core/` | 設定、環境變數、日誌配置 | `Extensions/` |
-| `factories/` | 物件映射工廠 | `Infrastructure/Factories/` |
+| `src/api/routers/` | 定義 Endpoint，僅負責 Request/Response | `src/*/Controllers/` |
+| `src/services/` | 業務邏輯實作（Performer） | `src/*/Services/` |
+| `src/models/` | 資料庫實體（SQLAlchemy / Motor） | `src/*/Domain/Entities/` |
+| `src/schemas/` | Pydantic DTO 定義 | `src/*/Models/DTOs/` |
+| `src/core/` | 設定、環境變數、日誌配置 | `src/*/Extensions/` |
+| `src/factories/` | 物件映射工廠 | `src/*/Infrastructure/Factories/` |
 
 ## API 合約與回應
 
