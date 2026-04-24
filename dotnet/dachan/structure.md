@@ -28,11 +28,11 @@
 |------|------|
 | MUST | 繼承 `AuditableEntityBase` 或實作 `ISoftDeletable` |
 | MUST | 放在 `/Domain/Entities` 下 |
-| MUST | 包含 `[BsonCollection("snake_case")]` 與 `[UseRepository]` 標註 |
+| MUST | 包含 `[BsonCollection("PascalCase")]` 與 `[UseRepository]` 標註 |
 | MUST | 新建實體後呼叫 `entity.InitializeAudit()` |
 
 ```csharp
-[BsonCollection("my_entities")]
+[BsonCollection("MyEntities")]
 [UseRepository(typeof(FullRepository<>))]
 public class MyEntity : AuditableEntityBase, IAggregateRoot
 {
