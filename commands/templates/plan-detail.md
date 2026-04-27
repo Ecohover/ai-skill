@@ -41,4 +41,4 @@ files:
 
 ### 自審清單
 - [ ] 讀取並執行 `.prompts/commands/audit-{{LANG}}.md`
-- [ ] 更新 `docs/task-index.md` 狀態
+- [ ] 更新 `doc/task-index.md` 狀態
