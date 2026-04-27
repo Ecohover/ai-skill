@@ -1,52 +1,51 @@
-# 開發流程協議
+# 開發任務管理與流程協議
 
-開始任何功能前先執行以下四個階段：
+AI 在接收指令後，應優先判定任務類別，並依類別執行對應的記錄與開發流程。
 
-## 1. Research（研究）
+## 1. 任務判定 (Task Categorization)
 
-- 讀取相關規則檔（見 `.prompts/README.md` 場景對照表）
-- 確認是否有現成套件/共用型別可用
-- 找出對應的 Controller / Service / API Module
+- **簡單任務 (Simple Task) [預設]**：
+    - 定義：常規修改、諮詢、單一檔案的 Bug Fix。
+    - 流程：直接執行，不需建立文件記錄。
+- **計畫任務 (Planned Task)**：
+    - 觸發條件：
+        1. **使用者明確要求** 使用計畫模式。
+        2. 涉及 3 個以上檔案的連動修改。
+        3. 涉及資料庫 Schema 或核心合約 (API Contract) 的變動。
+    - 流程：執行以下「兩層式文件記錄」規範。
 
-## 2. Design（設計）
+## 2. 計畫任務記錄規範 (Two-Layer Documentation)
 
-產出 YAML 格式實作清單，**必須獲得使用者核准後**才進入實作：
+### 序號獲取
+在建立新計畫前，**必須**先讀取 `docs/task-index.md` (若不存在則視為 001)，確認目前最後一個編號，並取用下一個序號。
 
-```yaml
-# 範例（.NET）
-files:
-  - Domain/Entities/MyEntity.cs
-  - Models/DTOs/MyEntity/InCreateMyEntityDto.cs
-  - Models/DTOs/MyEntity/OutMyEntityDto.cs
-  - Interfaces/IMyEntityService.cs
-  - Services/MyEntityService.cs
-  - Services/MyEntityService.Logging.cs
-  - Infrastructure/Factories/MyEntityFactory.cs
-  - Controllers/MyEntityController.cs
-```
+### 第一層：計畫清單 (`docs/task-index.md`)
+- 內容格式：
+    | 日期 | 編號 | 任務名稱 | 狀態 | 詳情連結 |
+    | :--- | :--- | :--- | :--- | :--- |
+    | yyyy-mm-dd | 001 | [任務摘要名稱] | (進行中/已完成) | [./plans/001-task-name.md] |
 
-```yaml
-# 範例（TypeScript）
-files:
-  - composables/api/modules/MyEntity.ts
-  - views/Domain/MyEntity.vue
-  - router/index.ts  # 新增路由
-env_vars: []
-```
+### 第二層：任務詳情 (`docs/plans/[編號]-[task-name].md`)
+應包含以下階段：
 
-## 3. Implement（實作）
+#### A. Research (研究)
+- 讀取相關規則檔並分析現狀。
 
-依清單順序產出，.NET 順序：
+#### B. Design (設計方案)
+- 產出實作檔案清單 (YAML)。
+- **注意**：實作過程中若發現設計需重大變更，**必須先更新此文件並取得核准**，嚴禁「先斬後奏」。
 
-`Entity → DTO → Interface → Factory → Service → Service.Logging → Controller`
+#### C. Execution Plan (執行計畫)
+- 具體的實作步驟與語言專屬順序。
 
-TypeScript 順序：
+---
 
-`types（interface）→ api module → store（若需要）→ view → router`
+## 3. 實作順序 (Implementation Sequence)
 
-## 4. Verify（驗證）
+- **.NET 順序**：`Entity → DTO → Interface → Factory → Service → Controller`
+- **TypeScript 順序**：`types → api module → store → view → router`
 
-執行對應的自審清單：
+## 4. 驗證與收尾 (Verify & Wrap-up)
 
-- .NET：讀取 `.prompts/commands/audit-dotnet.md`
-- TypeScript：讀取 `.prompts/commands/audit-typescript.md`
+1. 執行 `audit-*.md` 自審。
+2. 更新 `docs/task-index.md` 狀態為「已完成」。

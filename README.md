@@ -1,68 +1,63 @@
-# Dachan AI Prompts
+# Dachan AI Engineering Skill
 
-各專案透過 **git submodule** 引入此規則庫，AI 按需讀取對應檔案。
+這是一個專為 Gemini CLI 設計的 **AI 規則庫 (Skill)**。透過 Git Submodule 引入專案，為 AI 提供開發規範、設計模式與任務管理流程。
 
-> AI 請直接讀取 `AGENT.md` 作為路由入口，勿直接閱讀此文件。
-
----
-
-## 核心設計理念：分段載入 (Token 優化)
-為避免一次性灌入過多無關的 Prompt 導致 AI 幻覺與 Token 浪費，本規則庫採用**樹狀分層結構**。
-AI 在執行任務時，應依循 `AGENT.md` 的指示，分為三個階段載入上下文：
-1. **共用跨語言參考 (Universal)**: 載入通用原則與全域合約 (`core/`)。
-2. **語言基礎 (Language Base)**: 載入該語言的基礎語法與型別規則。
-3. **任務特定 (Task Specific)**: 根據具體修改的功能（如：新增 API、修改資料庫查詢），精準載入特定的模組規範。
+> **AI 指引**：請直接讀取 `AGENT.md` 作為路由入口，嚴禁一次性讀取所有文件。
 
 ---
 
-## 加入 Submodule
+## 🛠 核心設計理念：精準、分段、可追蹤
+
+為了極大化 Token 效率並減少 AI 幻覺，本 Skill 採用以下結構：
+1. **分段載入 (On-demand Loading)**：AI 僅讀取與當前任務語言、模組相關的規範。
+2. **兩層式任務記錄**：簡單任務直接執行，計畫任務必須在 `docs/` 下留下索引與詳細計畫。
+3. **單一真理來源 (Single Source of Truth)**：所有的開發邏輯與自審清單皆定義於此，確保跨專案的一致性。
+
+---
+
+## 📜 維護者準則 (Maintenance Rules)
+
+後續修改或擴充此 Skill 時，**必須**遵守以下規定：
+
+### 1. 保持檔案細粒度 (Keep Files Granular)
+- 嚴禁建立巨大的規範文件。
+- 每個檔案應專注於單一職責（例如：`error.md` 僅處理異常，`query.md` 僅處理查詢）。
+- 檔案大小建議保持在 100 行以內，以降低 AI 讀取成本。
+
+### 2. 遵守三階段載入架構
+- **階段 1**: 全域通用原則 (`core/`)。
+- **階段 2**: 語言基礎與特定模組 (`dotnet/`, `typescript/`, `python/`)。
+- **階段 3**: 流程控制與驗證 (`commands/`)。
+- 新增功能規範時，請按此層級歸類。
+
+### 3. 維護任務判定邏輯
+- 任何關於開發流程的修改，必須確保 `commands/plan.md` 中的「簡單任務」與「計畫任務」判定邏輯清晰。
+- 強制要求計畫任務使用 `[三位數序號]-[task-name].md` 命名規範。
+
+### 4. 跨語言一致性
+- 當新增一種程式語言支援時，應參照現有的 `.NET` 或 `TypeScript` 結構，建立 `base.md` 與 `dachan/` 資料夾，確保使用者的開發體驗一致。
+
+---
+
+## 📂 目錄結構
+
+```text
+AGENT.md             ← AI 入口：載入順序指南與路由對照表
+README.md            ← 本檔：給開發者與維護者的規範
+core/                ← 跨語言通用參考 (Universal Principles)
+dotnet/              ← .NET 語言專屬區
+typescript/          ← 前端語言專屬區
+python/              ← Python 語言專屬區
+commands/            ← 流程與品質控管 (Plan, Audit)
+```
+
+## 📥 安裝與連結
+
+各專案透過 **git submodule** 連結：
 
 ```bash
 git submodule add <repo-url> .prompts
 ```
 
-clone 後更新：
-
-```bash
-git submodule update --init
-```
-
----
-
-## 在各專案中連結規則庫
-
-在各專案的 `gemini.md`, `.prompt.md` 或 `CLAUDE.md` 頂部加入：
-
-```markdown
-規則庫位於 `.prompts/`，執行任務前請**必須**先閱讀 `.prompts/AGENT.md` 以取得路由指南。
-```
-
----
-
-## 目錄結構
-
-```text
-AGENT.md             ← AI 入口：載入順序指南與路由對照表（AI 唯一入口）
-README.md            ← 本檔：給開發者的說明
-core/                ← 跨語言通用參考 (Universal)
-  principles.md      ← 通用原則（命名/目錄結構/設計/時間）
-  api-contract.md    ← FE/BE 共用 API 合約（分頁/Searches/Enum/錯誤格式）
-  external-contract.md ← 對接外部系統或 Mock 專用合約
-dotnet/              ← .NET 語言專屬區
-  base.md            ← .NET 基礎（格式/集合/充血模型/物件映射）
-  dachan/
-    structure.md     ← 目錄/Entity/DTO/Controller/Service/Factory
-    error.md         ← ErrorDetail 異常處理
-    ...
-typescript/          ← 前端語言專屬區
-  base.md            ← TypeScript/Vue 3 基礎規則
-  dachan/
-    structure.md     ← 目錄/路由/Pinia
-    ...
-python/              ← Python 語言專屬區
-  base.md            ← Python 基礎規則 (型別/命名/Pydantic)
-  fastapi.md         ← FastAPI 框架規範
-commands/            ← 流程與品質控管
-  plan.md            ← 開發流程協議（Research→Design→Implement→Verify）
-  audit-*.md         ← 各語言提交前自審清單
-```
+在各專案的 `gemini.md` 或 `.prompt.md` 頂部加入：
+`規則庫位於 .prompts/，執行任務前請必讀 .prompts/AGENT.md。`
