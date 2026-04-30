@@ -1,34 +1,75 @@
-# AI 規則庫入口 (Agent Routing)
+# AI 協作入口（Agent Routing）
 
-為了節省 Token 並保持上下文精準，請**嚴格遵守按需載入**原則。
-**禁止跨語言讀取**（例如：開發 .NET 時不應讀取 TypeScript 規範）。
-
----
-
-## 階段 1：跨語言通用規範 (全專案適用)
-> 開始前**僅讀取與任務直接相關**的檔案。
-
-* **`core/principles.md`**：基礎協作原則 (必讀)。
-* **`core/api-contract.md`**：涉及**內部 API** 開發時讀取。
-* **`core/external-contract.md`**：涉及**第三方系統**對接時讀取。
+為節省 Token 並保持上下文精準，**嚴格遵守按需載入**原則。
 
 ---
 
-## 階段 2：語言與框架專屬規範 (限選一種語言)
-> **精準讀取**：先讀取 `base.md`，再根據要修改的模組讀取 1-2 個特定的 `dachan/*.md`。
+## Step 1：確認角色
 
-### 🟢 .NET (WMS 後端)
-* **基礎**: `dotnet/base.md`
-* **特定任務**: 根據 `dachan/` 下的檔名（如 `error`, `query`, `logging`）精準選取。
+進入 session 時，先確認自己是哪個角色，再載入對應規則。
 
-### 🔵 TypeScript / Vue 3 (前端)
-* **基礎**: `typescript/base.md`
-* **特定任務**: 根據 `dachan/` 下的檔名（如 `api-module`, `structure`）精準選取。
+| 角色 | 觸發時機 | 詳細規範 |
+| :--- | :--- | :--- |
+| **Planner** | 使用者呼叫規劃、或任務達到計畫門檻 | `roles/planner.md` |
+| **Builder** | 使用者呼叫實作、或收到 `awaiting-builder` 的 plan doc | `roles/builder.md` |
+| **Reviewer** | 使用者呼叫審查、或收到 `awaiting-review` 的 plan doc | `roles/reviewer.md` |
 
 ---
 
-## 階段 3：開發流程與提交前驗證
-> **判定與記錄**：進入開發前必須先閱讀 `commands/plan.md`。
+## Step 2：判斷任務類型
 
-* **`commands/plan.md`**：判定任務等級。若為「計畫任務」，**必須**先在專案 `doc/` 建立記錄。
-* **`commands/audit-*.md`**：實作完成後才讀取對應的自審清單。
+### 計畫任務（需要 Planner）
+
+符合以下任一條件：
+- 涉及 3 個以上檔案的連動修改
+- 涉及資料庫 Schema 或 API Contract 變動
+- 使用者明確要求計畫模式
+
+**流程：Planner → Builder → Reviewer**
+
+### 簡單任務（直接 Builder）
+
+- 單檔案修改、bug fix、諮詢
+
+**流程：Builder → Reviewer**
+
+---
+
+## Step 3：依角色載入規則
+
+### Planner 載入
+```
+roles/planner.md
+core/principles.md
+core/api-contract.md        ← 涉及 API 時
+core/external-contract.md   ← 涉及第三方時
+commands/plan.md
+```
+
+### Builder 載入
+```
+roles/builder.md
+core/principles.md
+[語言]/base.md              ← 依任務語言選一種
+[語言]/dachan/[模組].md     ← 精準選 1-2 個
+doc/plans/[id]-[name].md    ← 計畫任務才讀
+```
+
+### Reviewer 載入
+```
+roles/reviewer.md
+core/principles.md
+core/api-contract.md        ← 涉及 API 時
+commands/audit-[lang].md    ← 依實作語言選一種
+doc/plans/[id]-[name].md    ← 計畫任務才讀
+```
+
+---
+
+## 禁止事項
+
+- 禁止跨語言載入（開發 .NET 時不讀 TypeScript 規則）。
+- Planner 不寫程式碼。
+- Builder 不執行 audit。
+- Reviewer 不修改程式碼。
+- 任何角色不得跳過 handoff 文件直接進入下一個角色的工作。
