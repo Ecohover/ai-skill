@@ -9,4 +9,3 @@
 
 | 日期 | 編號 | 任務名稱 | 類型 | 狀態 | 存放路徑 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| {{DATE}} | {{ID}} | {{TITLE}} | {{TYPE}} | `awaiting-builder` | [./{{ID}}-{{SLUG}}/plan.md](./{{ID}}-{{SLUG}}/plan.md) |

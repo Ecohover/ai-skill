@@ -12,22 +12,28 @@ AI 在接收指令後，應優先判定任務類別，並依類別執行對應�
         1. **使用者明確要求** 使用計畫模式。
         2. 涉及 3 個以上檔案的連動修改。
         3. 涉及資料庫 Schema 或核心合約 (API Contract) 的變動。
-    ## 2. 計畫任務記錄規範 (Two-Layer Documentation)
+    ## 2. 計畫任務記錄規範 (Planning Sub-directory Structure)
 
-    所有文件應建立於專案根目錄的 `doc/` 資料夾中。
+    所有計畫應建立於 `prompts/doc/plan/` 資料夾中，與其他技術文件 (如架構說明、API 規格) 區隔。
 
     ### 序號獲取
-    在建立新計畫前，**必須**先讀取 `doc/task-index.md` (若不存在則視為 001)，確認目前最後一個編號，並取用下一個序號。
+    在建立新計畫前，**必須**先讀取 `prompts/doc/plan/task-index.md` (若不存在則視為 001)。
 
-    ### 第一層：計畫清單 (`doc/task-index.md`)
-    追蹤所有計畫任務的索引。
+    ### 第一層：計畫索引 (`prompts/doc/plan/task-index.md`)
+    這是計畫區的入口，記錄編號、任務名稱、狀態與路徑。
     - **格式規範**：必須參考 `.prompts/commands/templates/task-index.md`。
-    - 如果檔案不存在，請先建立標題列後再插入內容。
 
-    ### 第二層：任務詳情 (`doc/plans/[編號]-[task-name].md`)
-    每個計畫任務的獨立文件。
-    - **格式規範**：必須使用 `.prompts/commands/templates/plan-detail.md`作 為基礎結構。
-    - 應包含以下階段：
+    ### 第二層：獨立任務資料夾 (`prompts/doc/plan/[三位序號]-[task-name]/`)
+    每個任務擁有專屬子資料夾：
+    - `plan.md`：核心計畫。
+    - `research/`、`assets/`：選填附屬資源。
+
+    ---
+
+    ## 3. 命名慣例 (Naming Convention)
+
+    - **資料夾**：`prompts/doc/plan/[三位序號]-[task-name]/`
+    - **主文件**：`plan.md` (位於上述資料夾內)
 
     #### A. Research (研究)
     - 讀取相關規則檔並分析現狀。

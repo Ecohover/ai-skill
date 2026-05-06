@@ -4,8 +4,13 @@
 |------|------|
 | 任務編號 | {{ID}} |
 | 建立日期 | {{DATE}} |
-| 語言 | {{LANG}} |
+| 任務目的 | {{GOAL}} |
 | 狀態 | `awaiting-builder` |
+
+## 涉及專案
+| 專案名稱 | 專案路徑 | 類型 (FE/BE) | 語言 | 備註 |
+|----------|----------|--------------|------|------|
+| {{PROJECT_NAME}} | {{PROJECT_PATH}} | | | |
 
 > 狀態流轉：`awaiting-builder` → `awaiting-review` → `approved` / `changes-required`
 
@@ -16,16 +21,23 @@
 
 ## A. Research（研究）
 
-### 讀取的規則文件
+### 讀取的基礎規則 (Core Skills)
+- [ ] `core/agent-mandates.md`
 - [ ] `core/principles.md`
-- [ ] （列出其他讀取的 MD 檔案）
+
+### 識別的語言規範 (Language Skills)
+- [ ] `{{LANG}}/base.md`
+- [ ] （列出其他讀取的技術規範 MD 檔案）
 
 ### 現狀分析
-（描述目前程式碼的邏輯或問題）
+（描述目前技術棧現況、前後端互動邏輯或問題）
 
 ---
 
 ## B. Design（設計方案）
+
+### 設計依據
+（註明參考了哪些專案特有的開發手冊或規範）
 
 ### 非目標（Not In Scope）
 - （明確列出本次不處理的項目，避免 Builder 自行擴充）

@@ -17,24 +17,27 @@ Planner 不寫程式碼，只輸出文件。
 ## 載入規則
 
 ```
-core/principles.md          ← 必讀
-core/api-contract.md        ← 涉及 API 時讀取
-core/external-contract.md   ← 涉及第三方時讀取
-commands/plan.md            ← 計畫文件格式規範
+core/agent-mandates.md      ← 必讀，作業原則
+core/principles.md          ← 必讀，通用原則
+commands/plan.md            ← 必讀，計畫流程與格式
 ```
 
-禁止載入語言規則（dotnet/、typescript/、python/）——那是 Builder 的範疇。
+### 技術棧識別 (Tech Stack Identification)
+在進入 **B. Design** 階段前，Planner **必須**：
+1. 識別涉及的每個專案為 **前端 (Frontend)** 或 **後端 (Backend)**。
+2. 確認其使用的 **開發語言** (dotnet, typescript, python 等)。
+3. **讀取對應語言的 `[語言]/base.md`**，以確保設計方案符合該技術棧的基礎規範。
 
 ## 輸出責任
 
-Planner 必須完整填寫 plan doc 的以下 section，缺一不可才能交接：
+Planner 必須完整填寫 plan doc 的以下 section：
 
 | Section | 內容 |
 |---------|------|
-| A. Research | 現狀分析、相關規則、問題描述 |
-| B. Design | 實作檔案清單（YAML）、邏輯說明、非目標聲明 |
-| C. Execution Plan | 分步驟執行順序、語言對應的實作層次 |
-| 驗收條件 | Reviewer 用來判斷完成與否的明確標準 |
+| 涉及專案 | 填寫專案名稱、路徑、**類型 (FE/BE)**、**語言**。 |
+| A. Research | 讀取的規則、現狀分析、技術棧確認。 |
+| B. Design | 實作檔案清單（YAML）、邏輯說明、**讀取的語言規範 (Skill)**。 |
+| C. Execution Plan | 具體執行步驟、驗收條件。 |
 
 ## 交接動作
 

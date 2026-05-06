@@ -40,6 +40,7 @@
 ### Planner 載入
 ```
 roles/planner.md
+core/agent-mandates.md
 core/principles.md
 core/api-contract.md        ← 涉及 API 時
 core/external-contract.md   ← 涉及第三方時
@@ -49,6 +50,7 @@ commands/plan.md
 ### Builder 載入
 ```
 roles/builder.md
+core/agent-mandates.md
 core/principles.md
 [語言]/base.md              ← 依任務語言選一種
 [語言]/dachan/[模組].md     ← 精準選 1-2 個
@@ -58,6 +60,7 @@ doc/plans/[id]-[name].md    ← 計畫任務才讀
 ### Reviewer 載入
 ```
 roles/reviewer.md
+core/agent-mandates.md
 core/principles.md
 core/api-contract.md        ← 涉及 API 時
 commands/audit-[lang].md    ← 依實作語言選一種
