@@ -19,7 +19,7 @@ Planner 不寫程式碼，只輸出文件。
 ```
 core/agent-mandates.md      ← 必讀，作業原則
 core/principles.md          ← 必讀，通用原則
-commands/plan.md            ← 必讀，計畫流程與格式
+command/plan.md             ← 必讀，計畫流程與格式
 ```
 
 ### 技術棧識別 (Tech Stack Identification)
@@ -42,7 +42,7 @@ Planner 必須完整填寫 plan doc 的以下 section：
 ## 交接動作
 
 完成後必須執行：
-1. 在 `doc/task-index.md` 新增一筆紀錄，狀態設為 `awaiting-builder`。
+1. 在 `doc/plan/task-index.md` 新增一筆紀錄，狀態設為 `awaiting-builder`。
 2. 在 plan doc 頭部狀態欄填入 `awaiting-builder`。
 3. 告知使用者：「計畫文件已就緒，可交給 Builder 執行。」
 

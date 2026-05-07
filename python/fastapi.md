@@ -19,7 +19,7 @@ Python 專案內部的 `src/` 目錄採用類 Clean Architecture 的結構：
 
 **當本服務作為 Mock 使用時，必須遵循 `core/external-contract.md`**：
 
-1. **路徑與欄位**：完全對齊外部系統，打破大成內部 `In...Dto` 規範。
+1. **路徑與欄位**：完全對齊外部系統，打破內部 `In...Dto` 規範。
 2. **橋接**：使用 Pydantic 的 `alias` 或 `validation_alias` 來保持內部開發的可讀性。
 
 ### 統一回應格式 (Internal Standard)

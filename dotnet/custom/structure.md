@@ -1,13 +1,13 @@
-# Dachan WMS — 目錄分層 / Entity / DTO / Controller / Service / Factory
+# .NET Backend — 目錄分層 / Entity / DTO / Controller / Service / Factory
 
-## 私有套件
+## 私有套件（範例）
 
 | 套件 | 用途 |
 |------|------|
-| `Dachan.CommonUtils` | 環境變數、擴充方法 |
-| `Dachan.CommonUtils.Web` | ApiResponseMiddleware、DachanHttpClientProxy |
-| `Dachan.Common.EventDriven` | 異步領域事件、RabbitMQ 訊息整合 |
-| `Dachan.MongoRepository` | 資料存取，自動掃描 `[UseRepository]` |
+| `{Project}.CommonUtils` | 環境變數、擴充方法 |
+| `{Project}.CommonUtils.Web` | ApiResponseMiddleware、HttpClientProxy |
+| `{Project}.Common.EventDriven` | 異步領域事件、RabbitMQ 訊息整合 |
+| `{Project}.MongoRepository` | 資料存取，自動掃描 `[UseRepository]` |
 
 ## 目錄職責
 
@@ -118,7 +118,7 @@ public partial class WarehouseService(
             entity => entity.Id == ObjectId.Parse(updateDto.Id), cancellationToken);
         if (warehouse is null)
         {
-            throw WmsError.WarehouseNotFound.Exception();
+            throw AppError.EntityNotFound.Exception();
         }
 
         MasterDataFactory.UpdateEntity(warehouse, updateDto);
@@ -150,7 +150,7 @@ public static void UpdateEntity(Warehouse entity, InUpdateWarehouseDto dto)
 ## 服務啟動設定
 
 ```csharp
-builder.Services.AddDachanCommonUtils();
-builder.Services.AddDachanMongoDB(typeof(Program).Assembly);
-app.UseDachanMiddlewares();
+builder.Services.AddCommonUtils();
+builder.Services.AddMongoDB(typeof(Program).Assembly);
+app.UseProjectMiddlewares();
 ```

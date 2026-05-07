@@ -1,4 +1,4 @@
-# Dachan Frontend — API 模組規範
+# Vue Frontend — API 模組規範
 
 ## 規則
 
@@ -25,7 +25,7 @@ await api.GetWarehouse({ page: 1, pageSize: 20, searches })
 ```ts
 // composables/api/modules/Warehouse.ts
 import { useApiClient } from '../api-client'
-import type { ApiResult, PageResult } from '@dachan/shared'
+import type { ApiResult, PageResult } from '@{project}/shared'
 
 export interface Warehouse {
   id: string

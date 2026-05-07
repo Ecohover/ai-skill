@@ -1,6 +1,12 @@
 # 本地設定
 .clauderules
 
+# AI 工具依 command/adapt-agent.md 產生的本機 adapter
+/adapter/
+
+# 計畫文件是使用專案的產物；模板保留在 command/template/
+/doc/plan/
+
 # 系統檔案
 .DS_Store
 Thumbs.db

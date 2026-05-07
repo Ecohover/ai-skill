@@ -13,7 +13,7 @@
 
 ## 規則衝突處理 (Conflict Handling)
 
-當 Dachan 規範與外部合約衝突時：
+當專案規範與外部合約衝突時：
 
 1. **Schema 層 (DTO/Router)**：**打破規範**，以外部合約為準。
 2. **Service 層 (Business Logic)**：**保持規範**。若外部欄位命名極差，可在 Service 層將其轉為規範命名處理。

@@ -1,6 +1,6 @@
 # FE/BE 共用 API 合約
 
-> 後端以 WMS 為標準。前端開發 API 模組時必須與此合約對齊。
+> 前後端 API 模組開發時必須與此合約對齊。
 
 ## 回應格式
 
@@ -21,7 +21,7 @@
 {
   "success": false,
   "data": null,
-  "errorCode": "WMS-INV-40005",
+  "errorCode": "{SYS}-INV-40005",
   "message": "庫存數量不足。"
 }
 ```
@@ -44,7 +44,7 @@
 | `pageNumber` | `number` | 目前頁碼 |
 | `pageSize` | `number` | 每頁筆數 |
 
-### 前端 TypeScript 型別（來自 `@dachan/shared`）
+### 前端 TypeScript 型別（來自共用套件）
 
 ```ts
 export interface PageResult<T> {
@@ -94,11 +94,11 @@ export interface ApiResult<T> {
 
 | 範例 | 說明 |
 |------|------|
-| `WMS-COM-40001` | WMS 通用錯誤 |
-| `WMS-INV-40005` | WMS 庫存領域錯誤 |
-| `WMS-TSK-40010` | WMS 任務領域錯誤 |
+| `{SYS}-COM-40001` | 系統通用錯誤 |
+| `{SYS}-INV-40005` | 庫存領域錯誤 |
+| `{SYS}-TSK-40010` | 任務領域錯誤 |
 
-## HTTP Verb 慣例（WMS 標準）
+## HTTP Verb 慣例
 
 | 操作 | Verb | 說明 |
 |------|------|------|

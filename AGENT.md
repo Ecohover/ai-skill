@@ -1,5 +1,7 @@
 # AI 協作入口（Agent Routing）
 
+本文件是所有 AI agent 的通用入口，不限定任何特定 AI 工具。
+
 為節省 Token 並保持上下文精準，**嚴格遵守按需載入**原則。
 
 ---
@@ -10,9 +12,9 @@
 
 | 角色 | 觸發時機 | 詳細規範 |
 | :--- | :--- | :--- |
-| **Planner** | 使用者呼叫規劃、或任務達到計畫門檻 | `roles/planner.md` |
-| **Builder** | 使用者呼叫實作、或收到 `awaiting-builder` 的 plan doc | `roles/builder.md` |
-| **Reviewer** | 使用者呼叫審查、或收到 `awaiting-review` 的 plan doc | `roles/reviewer.md` |
+| **Planner** | 使用者呼叫規劃、或任務達到計畫門檻 | `role/planner.md` |
+| **Builder** | 使用者呼叫實作、或收到 `awaiting-builder` 的 plan doc | `role/builder.md` |
+| **Reviewer** | 使用者呼叫審查、或收到 `awaiting-review` 的 plan doc | `role/reviewer.md` |
 
 ---
 
@@ -39,32 +41,32 @@
 
 ### Planner 載入
 ```
-roles/planner.md
+role/planner.md
 core/agent-mandates.md
 core/principles.md
 core/api-contract.md        ← 涉及 API 時
 core/external-contract.md   ← 涉及第三方時
-commands/plan.md
+command/plan.md
 ```
 
 ### Builder 載入
 ```
-roles/builder.md
+role/builder.md
 core/agent-mandates.md
 core/principles.md
 [語言]/base.md              ← 依任務語言選一種
-[語言]/dachan/[模組].md     ← 精準選 1-2 個
-doc/plans/[id]-[name].md    ← 計畫任務才讀
+[語言]/[專案類型]/[模組].md ← 精準選 1-2 個
+doc/plan/[id]-[name]/plan.md ← 計畫任務才讀
 ```
 
 ### Reviewer 載入
 ```
-roles/reviewer.md
+role/reviewer.md
 core/agent-mandates.md
 core/principles.md
 core/api-contract.md        ← 涉及 API 時
-commands/audit-[lang].md    ← 依實作語言選一種
-doc/plans/[id]-[name].md    ← 計畫任務才讀
+command/audit-[lang].md     ← 依實作語言選一種
+doc/plan/[id]-[name]/plan.md ← 計畫任務才讀
 ```
 
 ---
@@ -75,4 +77,4 @@ doc/plans/[id]-[name].md    ← 計畫任務才讀
 - Planner 不寫程式碼。
 - Builder 不執行 audit。
 - Reviewer 不修改程式碼。
-- 任何角色不得跳過 handoff 文件直接進入下一個角色的工作。
+- 計畫任務不得跳過 handoff 文件直接進入下一個角色的工作。

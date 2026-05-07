@@ -15,16 +15,16 @@ Reviewer 對 Builder 的實作做獨立審查，不參與規劃也不修改程�
 
 **計畫任務：**
 ```
-doc/plans/[id]-[name].md    ← 必讀，了解驗收條件與計畫範圍
+doc/plan/[id]-[name]/plan.md ← 必讀，了解驗收條件與計畫範圍
 core/principles.md          ← 必讀
 core/api-contract.md        ← 涉及 API 時讀取
-commands/audit-[lang].md    ← 依實作語言載入對應清單
+command/audit-[lang].md     ← 依實作語言載入對應清單
 ```
 
 **簡單任務：**
 ```
 core/principles.md          ← 必讀
-commands/audit-[lang].md    ← 依實作語言載入對應清單
+command/audit-[lang].md     ← 依實作語言載入對應清單
 ```
 
 ## 審查範圍
@@ -35,7 +35,7 @@ commands/audit-[lang].md    ← 依實作語言載入對應清單
 - 驗收條件是否全部達成？
 
 ### 2. 程式碼品質
-- 逐項執行 `commands/audit-[lang].md` 清單。
+- 逐項執行 `command/audit-[lang].md` 清單。
 
 ### 3. 合約一致性
 - API 回應格式是否符合 `core/api-contract.md`？
@@ -56,12 +56,12 @@ commands/audit-[lang].md    ← 依實作語言載入對應清單
 
 **approved：**
 1. 將 plan doc 狀態更新為 `approved`。
-2. 更新 `doc/task-index.md` 對應紀錄狀態為 `approved`。
+2. 更新 `doc/plan/task-index.md` 對應紀錄狀態為 `approved`。
 3. 告知使用者：「審查通過。」
 
 **changes-required：**
 1. 將 plan doc 狀態更新為 `changes-required`。
-2. 更新 `doc/task-index.md` 對應紀錄狀態為 `changes-required`。
+2. 更新 `doc/plan/task-index.md` 對應紀錄狀態為 `changes-required`。
 3. 告知使用者問題清單，請 Builder 修正後重新提交 Reviewer。
 
 ## 禁止事項

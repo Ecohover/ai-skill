@@ -1,4 +1,4 @@
-# Dachan Frontend — 環境變數
+# Vue Frontend — 環境變數
 
 ## 規則
 
@@ -10,13 +10,12 @@
 | MUST NOT | 在程式碼中 hardcode API base URL |
 | MUST NOT | 將敏感資訊（token、密碼）放入 `.env` 並 commit |
 
-## 環境變數清單
+## 環境變數清單（範例）
 
 | 變數 | 用途 |
 |------|------|
-| `VITE_OMS_API_BASE_URL` | OMS 後端 API base URL |
-| `VITE_WMS_API_BASE_URL` | WMS 後端 API base URL |
-| `VITE_BASE_URL` | 前端靜態資源 base（Phase 2 CDN 切換用）|
+| `VITE_{APP}_API_BASE_URL` | 後端 API base URL |
+| `VITE_BASE_URL` | 前端靜態資源 base（CDN 切換用）|
 
 ## Runtime Config（部署覆蓋）
 
@@ -29,7 +28,7 @@
 api-client.ts 中優先使用 runtime config，fallback 至環境變數：
 
 ```ts
-const baseURL = (window as any).__WMS_API_URL__
-  ?? import.meta.env.VITE_WMS_API_BASE_URL
+const baseURL = (window as any).__APP_API_URL__
+  ?? import.meta.env.VITE_APP_API_BASE_URL
   ?? ''
 ```

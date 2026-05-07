@@ -1,4 +1,4 @@
-# Dachan WMS — Enum 規範
+# .NET Backend — Enum 規範
 
 ## 規則
 
@@ -20,7 +20,7 @@
 public enum TempZone { Roomtem, Cold, Chilled, Frozen }
 
 [UpperCaseEnum]
-public enum WmsOrderStatus { Active, Inactive, Pending, Completed }
+public enum OrderStatus { Active, Inactive, Pending, Completed }
 ```
 
 Entity / DTO 欄位：
@@ -36,5 +36,5 @@ public IEnumerable<TempZone> TempZones { get; set; } = [];
 前端 Blazor 比對：
 
 ```csharp
-entity.Status == nameof(WmsOrderStatus.Active).ToUpperInvariant()
+entity.Status == nameof(OrderStatus.Active).ToUpperInvariant()
 ```

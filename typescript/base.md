@@ -45,8 +45,8 @@
 | 約束 | 說明 |
 |------|------|
 | MUST | 所有 View import 使用 `() => import(...)` lazy load |
-| MUST | `createWebHistory` base 設為 `/oms/` 或 `/wms/`（各 app 自己的前綴）|
-| MUST NOT | 路由 `path` 或 `router.push()` 包含 `/oms/`、`/wms/` 前綴（base 已設定，重複會變 `/oms/oms/`）|
+| MUST | `createWebHistory` base 設為 `/{app}/`（各 app 自己的前綴）|
+| MUST NOT | 路由 `path` 或 `router.push()` 包含 `/{app}/` 前綴（base 已設定，重複會變 `/{app}/{app}/`）|
 | MUST | 需要登入的路由透過 Navigation Guard 統一保護 |
 
 ## 打包（Code Splitting）

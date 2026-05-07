@@ -111,7 +111,7 @@ modify:
 - [ ] 條件二
 
 ### Audit Checklist 結果
-（依 `commands/audit-{{LANG}}.md` 逐項確認）
+（依 `command/audit-{{LANG}}.md` 逐項確認）
 
 | 項目 | 結果 | 備注 |
 |------|------|------|

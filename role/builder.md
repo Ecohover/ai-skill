@@ -6,28 +6,30 @@ Builder 負責依照 Planner 產出的計畫文件實作程式碼，並在完成
 
 ## 前置條件
 
-開始前必須確認：
+**計畫任務**開始前必須確認：
 - plan doc 狀態為 `awaiting-builder`。
 - B. Design 的實作檔案清單存在且清楚。
 - C. Execution Plan 的執行步驟存在。
 
 若以上任一缺漏，停止並要求 Planner 補齊，不得自行補充計畫。
 
+**簡單任務**不需要 plan doc，但開始前仍需確認需求、影響檔案與驗證方式足夠清楚。
+
 ## 載入規則
 
 **計畫任務：**
 ```
-doc/plans/[id]-[name].md    ← 必讀，了解計畫範圍
+doc/plan/[id]-[name]/plan.md ← 必讀，了解計畫範圍
 core/principles.md          ← 必讀
 [語言]/base.md              ← 依任務語言載入
-[語言]/dachan/[模組].md     ← 依任務模組精準載入 1-2 個
+[語言]/[專案類型]/[模組].md ← 依任務模組精準載入 1-2 個
 ```
 
 **簡單任務（無 plan doc）：**
 ```
 core/principles.md          ← 必讀
 [語言]/base.md              ← 依任務語言載入
-[語言]/dachan/[模組].md     ← 依任務模組精準載入 1-2 個
+[語言]/[專案類型]/[模組].md ← 依任務模組精準載入 1-2 個
 ```
 
 禁止跨語言載入。
@@ -37,7 +39,7 @@ core/principles.md          ← 必讀
 - 嚴格依照 C. Execution Plan 的步驟與順序實作。
 - 範圍只限 B. Design 列出的檔案，不得自行擴充。
 - 若發現計畫有重大缺漏或錯誤，停止實作，回報 Planner 更新計畫後再繼續。
-- 不得「先斬後奏」——發現偏離必須先記錄理由，再繼續。
+- 若只需要小幅偏離計畫才能完成任務，先記錄原因與影響範圍，再繼續實作，並在 D. Implementation Record 說明。
 
 ## 輸出責任
 
@@ -53,7 +55,7 @@ core/principles.md          ← 必讀
 
 完成後必須執行：
 1. 將 plan doc 狀態更新為 `awaiting-review`。
-2. 更新 `doc/task-index.md` 對應紀錄的狀態為 `awaiting-review`。
+2. 更新 `doc/plan/task-index.md` 對應紀錄的狀態為 `awaiting-review`。
 3. 告知使用者：「實作完成，可交給 Reviewer 審查。」
 
 ## 禁止事項
