@@ -1,5 +1,6 @@
 # 本地設定
 .clauderules
+.claude/
 
 # AI 工具依 command/adapt-agent.md 產生的本機 adapter
 /adapter/
