@@ -30,6 +30,21 @@
 | MUST | 放在 `/Domain/Entities` 下 |
 | MUST | 包含 `[BsonCollection("PascalCase")]` 與 `[UseRepository]` 標註 |
 | MUST | 新建實體後呼叫 `entity.InitializeAudit()` |
+| PREFER | 若專案採用 `Dachan.MongoRepository`，主檔 audit 欄位優先使用 CommonUtils 提供的 `IAuditFields` / `AuditBase` |
+| MUST NOT | 因為有 `Dachan.MongoRepository` 就假設所有 entity 都必須啟用完整 audit log |
+| MUST | 只有需要 recent audit log + 獨立 audit record 雙寫的 entity，才實作 `IEmbeddedAuditLogEntity` 並加上 `[AuditLogRetention(n)]` |
+
+### CommonUtils Audit Log 使用原則
+
+- 只需要主檔 audit 欄位：
+  - 使用 `IAuditFields` 或 `AuditBase`
+  - repository 自動寫入 `Created*` / `LastUpdated*`
+- 需要 recent audit log：
+  - entity 實作 `IEmbeddedAuditLogEntity`
+  - class 加上 `[AuditLogRetention(10|20|100)]`
+  - repository 在 `Create / Update / HardDelete(entity)` 自動 append `RecentHistories`、trim 最舊紀錄、同步寫入 `AuditRecord`
+- 不需要 audit log 的 entity：
+  - 不要硬套 `IEmbeddedAuditLogEntity`
 
 ```csharp
 [BsonCollection("MyEntities")]
@@ -41,6 +56,19 @@ public class MyEntity : AuditableEntityBase, IAggregateRoot
     public required string Code { get; set; }
     public required string Status { get; set; }
     public string? Remark { get; set; }
+}
+```
+
+```csharp
+[AuditLogRetention(20)]
+[BsonCollection("OutboundOrders")]
+[UseRepository(typeof(FullRepository<>))]
+public class OutboundOrder : AuditBase, IAggregateRoot, IEmbeddedAuditLogEntity
+{
+    [BsonId]
+    public ObjectId Id { get; set; }
+
+    public required string OrderNo { get; set; }
 }
 ```
 
