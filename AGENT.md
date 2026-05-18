@@ -15,6 +15,7 @@
 | **Planner** | 使用者呼叫規劃、或任務達到計畫門檻 | `role/planner.md` |
 | **Builder** | 使用者呼叫實作、或收到 `awaiting-builder` 的 plan doc | `role/builder.md` |
 | **Reviewer** | 使用者呼叫審查、或收到 `awaiting-review` 的 plan doc | `role/reviewer.md` |
+| **Code Inspector** | 使用者要求依規範逐步檢查程式碼，或需要低上下文風險的規則稽核 | `role/code-inspector.md` |
 
 ---
 
@@ -69,6 +70,19 @@ command/audit-[lang].md     ← 依實作語言選一種
 doc/plan/[id]-[name]/plan.md ← 計畫任務才讀
 ```
 
+### Code Inspector 載入
+```
+role/code-inspector.md
+core/agent-mandates.md
+core/principles.md
+core/api-contract.md         ← 涉及 API 時
+[語言]/base.md               ← 依實作語言選一種
+[語言]/[模組規則].md         ← 只讀本次檢查範圍需要的 1-2 份
+command/audit-[lang].md      ← 依實作語言選一種
+command/audit-chunked.md
+doc/plan/[id]-[name]/plan.md ← 計畫任務才讀
+```
+
 ---
 
 ## 禁止事項
@@ -77,4 +91,5 @@ doc/plan/[id]-[name]/plan.md ← 計畫任務才讀
 - Planner 不寫程式碼。
 - Builder 不執行 audit。
 - Reviewer 不修改程式碼。
+- Code Inspector 不一次讀完整個程式碼庫，也不修改程式碼。
 - 計畫任務不得跳過 handoff 文件直接進入下一個角色的工作。
