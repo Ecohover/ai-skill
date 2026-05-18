@@ -47,6 +47,7 @@ core/agent-mandates.md
 core/principles.md
 core/api-contract.md        ← 涉及 API 時
 core/external-contract.md   ← 涉及第三方時
+[語言]/base.md              ← 進入 B. Design 前，依涉及語言載入
 command/plan.md
 ```
 
@@ -66,6 +67,7 @@ role/reviewer.md
 core/agent-mandates.md
 core/principles.md
 core/api-contract.md        ← 涉及 API 時
+core/external-contract.md   ← 涉及第三方時
 command/audit-[lang].md     ← 依實作語言選一種
 doc/plan/[id]-[name]/plan.md ← 計畫任務才讀
 ```
@@ -77,7 +79,7 @@ core/agent-mandates.md
 core/principles.md
 core/api-contract.md         ← 涉及 API 時
 [語言]/base.md               ← 依實作語言選一種
-[語言]/[模組規則].md         ← 只讀本次檢查範圍需要的 1-2 份
+[語言]/custom/[模組].md      ← 只讀本次檢查範圍需要的 1-2 份
 command/audit-[lang].md      ← 依實作語言選一種
 command/audit-chunked.md
 doc/plan/[id]-[name]/plan.md ← 計畫任務才讀

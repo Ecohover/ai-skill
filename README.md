@@ -2,26 +2,60 @@
 
 這是一個 **AI 泛用工程規則庫**，透過 Git Submodule 引入專案，為不同 AI agent 提供開發規範、設計模式與任務管理流程。
 
-本規則庫不綁定特定 AI 工具。任何可讀取檔案的 AI agent 都可以依 `AGENT.md` 的路由規則擔任 Planner、Builder 或 Reviewer。
+本檔給人類使用者與維護者閱讀，說明如何安裝、連結與維護這份 Skill。
 
-> **AI 指引**：請直接讀取 `AGENT.md` 作為路由入口，嚴禁一次性讀取所有文件。
+AI agent 的啟動入口是 `SKILL.md`；實際角色路由與載入順序由 `AGENT.md` 定義。
 
 ---
 
-## 🛠 核心設計理念：精準、分段、可追蹤
+## 使用方式
 
-為了極大化 Token 效率並減少 AI 幻覺，本規則庫採用以下結構：
-1. **分段載入 (On-demand Loading)**：AI 僅讀取與當前任務語言、模組相關的規範。
-2. **兩層式任務記錄**：簡單任務直接執行，計畫任務必須在 `doc/` 下留下索引與詳細計畫。
-3. **單一真理來源 (Single Source of Truth)**：所有的開發邏輯與自審清單皆定義於此，確保跨專案的一致性。
+### 1. 安裝到專案
+
+各專案透過 git submodule 連結：
+
+```bash
+git submodule add <repo-url> .prompts
+```
+
+在使用專案的 AI 設定檔頂部加入：
+
+```md
+規則庫位於 .prompts/。執行任務前請先使用 .prompts/SKILL.md；若工具不支援 Skill，請讀取 .prompts/AGENT.md 作為路由入口。
+```
+
+### 2. 讓 AI 開始工作
+
+一般使用時，只要告訴 AI：
+
+```md
+請依 .prompts/SKILL.md 使用本規則庫。
+```
+
+AI 會再依任務類型進入 Planner、Builder、Reviewer 或 Code Inspector。
+
+### 3. 工具 adapter
+
+不同 AI 工具若需要自己的入口 md，應依 `command/adapt-agent.md` 產生 adapter。
+
+adapter 是使用專案產物，不是本規則庫的真理來源。
+
+---
+
+## 核心設計理念
+
+為了降低 Token 消耗並減少 AI 誤判，本規則庫採用以下結構：
+
+1. **按需載入**：AI 僅讀取與當前任務角色、語言、模組相關的規範。
+2. **角色分工**：Planner、Builder、Reviewer、Code Inspector 分別負責規劃、實作、審查與分批稽核。
+3. **任務記錄**：簡單任務直接執行；計畫任務在 `doc/plan/` 下留下索引與詳細計畫。
+4. **單一真理來源**：`AGENT.md` 是 AI 路由來源，`role/`、`core/`、`command/` 與語言目錄提供細部規則。
 
 > `command/template/` 是本規則庫的版本化模板；`doc/plan/` 是各使用專案執行任務時產生的紀錄，應被 ignore，不提交回規則庫 repo。
 
-> 不同 AI 工具若需要自己的入口 md，應依 `command/adapt-agent.md` 產生 adapter；adapter 是使用專案產物，不是本規則庫的真理來源。
-
 ---
 
-## 📜 維護者準則 (Maintenance Rules)
+## 維護者準則
 
 後續修改或擴充此規則庫時，**必須**遵守以下規定：
 
@@ -38,19 +72,19 @@
 
 ### 3. 維護任務判定邏輯
 - 任何關於開發流程的修改，必須確保 `command/plan.md` 中的「簡單任務」與「計畫任務」判定邏輯清晰。
-- 強制要求計畫任務使用 `[三位數序號]-[task-name].md` 命名規範。
+- 強制要求計畫任務使用 `doc/plan/[三位序號]-[task-name]/plan.md` 結構。
 
 ### 4. 跨語言一致性
 - 當新增一種程式語言支援時，應參照現有的 `.NET` 或 `TypeScript` 結構，建立 `base.md` 與專案自定義資料夾（`custom/`），確保使用者的開發體驗一致。
 
 ---
 
-## 📂 目錄結構
+## 目錄結構
 
 ```text
 AGENT.md             ← AI 入口：載入順序指南與路由對照表
 README.md            ← 本檔：給開發者與維護者的規範
-SKILL.md             ← 泛用 Skill 入口
+SKILL.md             ← 給 AI agent 使用的 Skill 啟動入口
 core/                ← 跨語言通用參考 (Universal Principles)
 dotnet/              ← .NET 語言專屬區
 typescript/          ← 前端語言專屬區
@@ -60,14 +94,3 @@ command/template/    ← 計畫文件模板
 command/adapt-agent.md ← AI 工具 adapter 產生規範
 doc/plan/            ← 實際任務紀錄（產物，已 ignore）
 ```
-
-## 📥 安裝與連結
-
-各專案透過 **git submodule** 連結：
-
-```bash
-git submodule add <repo-url> .prompts
-```
-
-在各專案的 AI 設定檔頂部加入：
-`規則庫位於 .prompts/，執行任務前請必讀 .prompts/AGENT.md。`

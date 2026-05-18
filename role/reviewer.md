@@ -16,14 +16,19 @@ Reviewer 對 Builder 的實作做獨立審查，不參與規劃也不修改程�
 **計畫任務：**
 ```
 doc/plan/[id]-[name]/plan.md ← 必讀，了解驗收條件與計畫範圍
+core/agent-mandates.md      ← 必讀
 core/principles.md          ← 必讀
 core/api-contract.md        ← 涉及 API 時讀取
+core/external-contract.md   ← 涉及第三方時讀取
 command/audit-[lang].md     ← 依實作語言載入對應清單
 ```
 
 **簡單任務：**
 ```
+core/agent-mandates.md      ← 必讀
 core/principles.md          ← 必讀
+core/api-contract.md        ← 涉及 API 時讀取
+core/external-contract.md   ← 涉及第三方時讀取
 command/audit-[lang].md     ← 依實作語言載入對應清單
 ```
 

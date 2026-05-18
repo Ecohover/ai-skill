@@ -20,6 +20,7 @@ Builder 負責依照 Planner 產出的計畫文件實作程式碼，並在完成
 **計畫任務：**
 ```
 doc/plan/[id]-[name]/plan.md ← 必讀，了解計畫範圍
+core/agent-mandates.md      ← 必讀
 core/principles.md          ← 必讀
 [語言]/base.md              ← 依任務語言載入
 [語言]/[專案類型]/[模組].md ← 依任務模組精準載入 1-2 個
@@ -27,6 +28,7 @@ core/principles.md          ← 必讀
 
 **簡單任務（無 plan doc）：**
 ```
+core/agent-mandates.md      ← 必讀
 core/principles.md          ← 必讀
 [語言]/base.md              ← 依任務語言載入
 [語言]/[專案類型]/[模組].md ← 依任務模組精準載入 1-2 個
