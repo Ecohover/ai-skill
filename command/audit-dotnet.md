@@ -6,6 +6,8 @@
 - [ ] **日誌** 是否定義在獨立的 `*.Logging.cs`，使用 `[LoggerMessage]`？
 - [ ] **Controller** 是否只處理 Request/Response，無商業邏輯？
 - [ ] **Controller** 是否有手動封裝 Response？（必須沒有）
+- [ ] **API 路徑** 是否使用 `[Route("api/[controller]")]`，且沒有使用 `[action]`？
+- [ ] **Action Route** 是否只放 `query`、`create`、`update`、子資源或特殊流程，沒有重複 Controller 資源名稱或完整 method 名稱？
 - [ ] **ErrorDetail** 有上下文用 `ErrorDetail<TContext>`，無上下文用 `ErrorDetail`，兩者是否正確使用？
 - [ ] **QueryOptions** Lambda 參數是否有業務語意名稱（非 `x`）？
 - [ ] **Enum** 集合欄位是否用 `IEnumerable<EnumType>` 而非 `IEnumerable<string>`？
