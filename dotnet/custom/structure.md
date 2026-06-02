@@ -104,7 +104,7 @@ public string TypeDisplay => Type?.ToLowerInvariant() switch
 | MUST NOT | 使用 `[Route("api/[controller]/[action]")]` |
 | MUST NOT | 在 path 重複 Controller 資源名稱或完整 method 名稱 |
 | MUST | 僅處理 Request/Response，不含商業邏輯 |
-| MUST NOT | 手動封裝 Response（由 `ApiResponseMiddleware` 統一處理）|
+| MUST NOT | 手動封裝 `DachanApiResponse` / `ApiResult` / 自訂 wrapper（由 `ApiResponseMiddleware` 統一處理）|
 
 ### API 路徑命名
 

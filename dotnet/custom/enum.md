@@ -13,6 +13,8 @@
 | MUST NOT | 用 int 表示 Enum 值 |
 | MUST NOT | Enum 命名加 `In`/`Out` 前綴（`TempZone` 而非 `InTempZone`）|
 
+> 例外：環境變數 Enum 不適用本檔 PascalCase 命名規則。環境變數 Enum 成員必須依 `dotnet/custom/env.md` 使用全大寫底線命名，並與實際環境變數名稱一致。
+
 ## 範例
 
 ```csharp

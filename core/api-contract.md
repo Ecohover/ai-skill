@@ -4,7 +4,9 @@
 
 ## 回應格式
 
-所有 API 回應由 `ApiResponseMiddleware` 統一封裝，**Controller 禁止手動封裝**：
+大成專案的標準 API 回應結構為 `DachanApiResponse<T>`，對外 JSON 欄位固定如下。
+
+所有 API 回應由 `ApiResponseMiddleware` 統一封裝成 `DachanApiResponse<T>`，**Controller 禁止手動封裝 `DachanApiResponse` / `ApiResult` / 自訂 wrapper**：
 
 ```json
 {
