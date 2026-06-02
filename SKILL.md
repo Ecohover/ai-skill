@@ -1,23 +1,21 @@
 ---
 name: ai-engineering-workflow
-description: Generic AI engineering skill and rule-pack router for planning, building, reviewing, and chunked rule-based code inspection. Use when an AI agent needs to follow this repository's Planner/Builder/Reviewer/Code Inspector workflow, load language-specific engineering rules from core/dotnet/typescript/python, manage plan documents under doc/plan, generate tool-specific adapter markdown, or audit code changes with command/audit-*.md and command/audit-chunked.md.
+description: Use when an AI agent works with this prompt rule pack, needs Planner/Builder/Reviewer/Code Inspector routing, must load engineering rules from AGENT.md, core, role, dotnet, typescript, or python folders, or needs plan docs, adapter markdown, or rule-based audits.
 ---
 
 # AI 工程協作 Skill
 
-本檔是給 AI agent 使用的 Skill 啟動入口，不綁定特定 AI 工具。
+本檔是 AI agent 使用本規則庫時的 Skill 啟動入口，只負責路由與按需載入，不取代實際規範。
 
-人類使用說明在 `README.md`。AI agent 不應把 `README.md` 當作任務路由來源。
+`AGENT.md` 是 AI 路由的真理來源。`README.md` 是人類維護說明，不作為 AI 任務路由依據。
 
-任何 AI agent 使用本規則庫時，都必須先讀取 `AGENT.md`，再依任務角色與技術棧按需載入其他文件。
-
-## 使用順序
+## 啟動流程
 
 1. 讀取 `AGENT.md`。
 2. 判斷任務應由 Planner、Builder、Reviewer 或 Code Inspector 處理。
 3. 只載入該角色、語言、流程與模組需要的文件。
 4. 依角色文件執行任務，不得混用其他角色責任。
-5. 若目前 AI 工具需要自己的入口 md，依 `command/adapt-agent.md` 產生 adapter。
+5. 若 AI 工具需要專屬入口 md，依 `command/adapt-agent.md` 產生 adapter。
 
 ## 目錄對照
 
@@ -32,7 +30,7 @@ description: Generic AI engineering skill and rule-pack router for planning, bui
 
 ## 核心原則
 
-採用按需載入。不要把所有規則文件合併成單一大型提示；先讀 `AGENT.md` 路由，再讀必要規範。
+採用按需載入。不要一次讀完整個規則庫，也不要把所有規則合併成單一大型提示。
 
 角色邊界以 `role/*.md` 為準：
 
