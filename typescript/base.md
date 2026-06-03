@@ -22,6 +22,26 @@
 | MUST NOT | 使用 Options API（`export default { data() {} }`）|
 | MUST NOT | 在 `<template>` 中寫複雜邏輯，應抽至 composable |
 
+## Dachan Shared 元件與主檔頁面
+
+| 約束 | 說明 |
+|------|------|
+| MUST | OMS/WMS/TMS 既有共用元件可滿足需求時，優先使用 `@dachan/shared` 或專案既有標準元件 |
+| MUST | 主檔列表頁優先參考商品、客戶、訂單等既有 List/SearchTable 版型，保持搜尋區、列表外框、分頁與操作欄一致 |
+| MUST | 主檔新增、查看、編輯優先使用 detail 頁模式，參考商品/客戶主檔的 `DetailPageShell`、`DetailPageHeader`、`DetailFieldSection` |
+| MUST | detail 頁的編輯行為使用頁首「編輯 / 儲存 / 取消」動作切換唯讀與可編輯狀態 |
+| MUST NOT | 用 dialog/modal 承載主檔主要新增或編輯流程；dialog 只適合確認、提示或輕量子資料 |
+| MUST NOT | 自行刻搜尋框、列表容器、表格操作欄或 detail 區塊樣式，除非現有標準元件無法支援且已說明原因 |
+
+## Audit Log UI
+
+| 約束 | 說明 |
+|------|------|
+| MUST | 需要顯示 audit log 的主檔 detail 頁，優先使用既有 `EntityAuditPanel` |
+| MUST | detail footer 顯示 entity 內嵌的最近異動紀錄，完整紀錄透過既有 AuditLog API 查詢 |
+| MUST | 完整異動紀錄呈現方式參考商品/客戶主檔既有 drawer pattern |
+| MUST NOT | 在執行紀錄或同步紀錄頁重複呈現完整 OldValue / NewValue；若需要追溯異動細節，應連結或查詢 audit log |
+
 ## 命名
 
 | 約束 | 說明 |

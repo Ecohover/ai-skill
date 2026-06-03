@@ -17,5 +17,8 @@
 - [ ] **環境變數** 是否透過 Enum + `.GetEnvironmentValue()`（非 `Environment.GetEnvironmentVariable()`）？
 - [ ] **環境變數 Enum** 成員名稱是否全大寫底線且與實際環境變數一致，沒有使用 `PortalAuth__Enabled` 這類雙底線設定？
 - [ ] **新建 Entity** 是否呼叫 `entity.InitializeAudit()`？
+- [ ] **Audit Log Entity** 需要 recent audit log 的 entity 是否實作 `IEmbeddedAuditLogEntity` 並加上 `[AuditLogRetention(n)]`？主檔未指定時是否預設保留 5 筆？
+- [ ] **Audit Log DTO** 若 entity 有 recent audit log，輸出 DTO / Factory 是否包含 `Created*`、`LastUpdated*`、`RecentHistories` 並轉成 `AuditHistoryDto`？
+- [ ] **紀錄性資料** 執行紀錄、同步紀錄是否只保留摘要/統計/關聯欄位，沒有重複保存完整 OldValue / NewValue？
 - [ ] **Factory** UpdateEntity 是否用 `.IfPresent()` / `.IfNotNull()`？
 - [ ] **XML Documentation** 所有 public 方法是否有繁體中文說明？

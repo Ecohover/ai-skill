@@ -13,4 +13,8 @@
 - [ ] **Enum 比對** 是否使用 `.toUpperCase()` 比對大寫 Enum 字串？
 - [ ] **樣式** 是否優先使用 TailwindCSS utility class，避免多餘自訂 CSS？
 - [ ] **Element Plus** 是否優先使用 Element Plus 組件？
+- [ ] **標準元件** 主檔列表、搜尋、操作欄與 detail 區塊是否優先使用 `@dachan/shared` 或專案既有標準元件？
+- [ ] **主檔流程** 新增、查看、編輯是否使用 detail 頁模式，而不是用 dialog/modal 承載主要編輯流程？
+- [ ] **Detail 頁操作** 是否使用頁首「編輯 / 儲存 / 取消」切換狀態，並參考商品/客戶主檔作法？
+- [ ] **Audit Log UI** 需要稽核紀錄的 detail 頁是否使用 `EntityAuditPanel`，並以 drawer 查詢完整異動紀錄？
 - [ ] **Store** 是否只存跨組件共享狀態，頁面內部狀態用 `ref`/`reactive`？
