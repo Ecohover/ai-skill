@@ -3,6 +3,8 @@
 提交程式碼前逐項確認：
 
 - [ ] **Service** 是否使用 `partial class`？
+- [ ] **DI 建構式** 是否使用 constructor injection / Primary Constructor，private 欄位是否 `_` 開頭，且沒有 property injection / service locator？
+- [ ] **DI 排序** 多個依賴是否依 logger/context、MQ/event/external client、repository、其他 service 的順序排列？
 - [ ] **日誌** 是否定義在獨立的 `*.Logging.cs`，使用 `[LoggerMessage]`？
 - [ ] **Controller** 是否只處理 Request/Response，無商業邏輯？
 - [ ] **Controller** 是否有手動封裝 Response？（必須沒有）

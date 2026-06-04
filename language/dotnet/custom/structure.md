@@ -121,7 +121,7 @@ public class WarehouseController(IWarehouseService _warehouseService) : Controll
 
 | 約束 | 說明 |
 |------|------|
-| MUST | 使用 `partial class` + Primary Constructor |
+| MUST | 使用 `partial class` + Primary Constructor；DI 細節依 `language/dotnet/custom/di.md` |
 | MUST | 方法簽名含 `CancellationToken cancellationToken = default` |
 
 | 操作 | 回傳型別 |
@@ -133,8 +133,8 @@ public class WarehouseController(IWarehouseService _warehouseService) : Controll
 
 ```csharp
 public partial class WarehouseService(
-    IFullRepository<Warehouse> _repository,
-    ILogger<WarehouseService> logger) : IWarehouseService
+    ILogger<WarehouseService> _logger,
+    IFullRepository<Warehouse> _repository) : IWarehouseService
 {
     public async Task UpdateWarehouseAsync(
         InUpdateWarehouseDto updateDto, CancellationToken cancellationToken = default)

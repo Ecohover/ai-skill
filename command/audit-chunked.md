@@ -90,12 +90,13 @@ Batch A1
 
 - `core/principles.md`
 - `language/[lang]/custom/env*.md`
+- `language/[lang]/custom/di*.md`
 - `package/[common-package]/environment.md`（如適用）
 - `language/[lang]/framework*.md`
 - `command/audit-[lang].md`
 
 適合一起檢查的例子：
-- .NET constructor injection / env enum / audit initialize
+- .NET constructor injection / private field naming / DI order / env enum / audit initialize
 - TypeScript `import.meta.env.VITE_*` / runtime config / base URL
 - Python `Depends` / `BaseSettings` / async IO
 
@@ -207,7 +208,7 @@ Batch A1
 | A2 | 結構與邊界 | `Domain/Entities`, `Infrastructure/Factories` | `language/dotnet/custom/structure.md` |
 | B1 | 型別與合約 | DTO, entity, response | `language/dotnet/base.md`, `command/audit-dotnet.md` |
 | C1 | 命名與文件 | public API, lambda, methods | `core/principles.md`, `command/audit-dotnet.md` |
-| D1 | DI/Env/Time | service ctor, env, audit fields | `core/principles.md`, `language/dotnet/custom/env.md` |
+| D1 | DI/Env/Time | service ctor, env, audit fields | `core/principles.md`, `language/dotnet/custom/di.md`, `language/dotnet/custom/env.md` |
 | E1 | 套件特規 | logging, query, error, factory | `language/dotnet/custom/logging.md`, `language/dotnet/custom/query.md`, `language/dotnet/custom/error.md` |
 | T1 | 測試與驗證 | test project / 本輪變更 diff | `core/agent-mandates.md`, plan doc |
 
