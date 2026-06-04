@@ -25,8 +25,8 @@ Batch A1
 - Files: Warehouse.ts, api-client.ts
 - Source Rules:
   - core/principles.md
-  - typescript/base.md
-  - typescript/custom/api-module.md
+  - language/typescript/base.md
+  - language/typescript/custom/api-module.md
   - command/audit-typescript.md
 ```
 
@@ -42,8 +42,8 @@ Batch A1
 
 - `core/principles.md`
 - `AGENT.md`
-- `[lang]/base.md`
-- `[lang]/custom/structure*.md` 或框架結構檔
+- `language/[lang]/base.md`
+- `language/[lang]/custom/structure*.md` 或框架結構檔
 
 適合一起檢查的例子：
 - TypeScript: View / router / store / API module 邊界
@@ -55,7 +55,7 @@ Batch A1
 檢查型別安全、DTO/schema/interface、API 回傳與欄位型別。
 
 - `core/api-contract.md`（如適用）
-- `[lang]/base.md`
+- `language/[lang]/base.md`
 - `command/audit-[lang].md`
 
 適合一起檢查的例子：
@@ -68,7 +68,7 @@ Batch A1
 檢查命名、布林命名、方法命名、無意義參數、註解文件化。
 
 - `core/principles.md`
-- `[lang]/base.md`
+- `language/[lang]/base.md`
 - `command/audit-[lang].md`
 
 適合一起檢查的例子：
@@ -82,8 +82,8 @@ Batch A1
 檢查 DI、環境變數讀取方式、時間處理、外部依賴邊界。
 
 - `core/principles.md`
-- `[lang]/custom/env*.md`
-- `[lang]/framework*.md`
+- `language/[lang]/custom/env*.md`
+- `language/[lang]/framework*.md`
 - `command/audit-[lang].md`
 
 適合一起檢查的例子：
@@ -183,36 +183,36 @@ Batch A1
 
 | 批次 | Rule Family | Package/Module | 主要來源 |
 |------|-------------|----------------|----------|
-| A1 | 結構與邊界 | `views/`, `router/` | `core/principles.md`, `typescript/base.md` |
-| A2 | 結構與邊界 | `stores/`, `composables/` | `typescript/base.md` |
-| B1 | 型別與合約 | `composables/api/modules/` | `typescript/base.md`, `typescript/custom/api-module.md`, `command/audit-typescript.md` |
-| C1 | 命名與可讀性 | 本輪涉及 TS/Vue 檔案 | `core/principles.md`, `typescript/base.md` |
-| D1 | 環境與設定 | `api-client.ts`, `env`, `index.html` | `typescript/custom/env.md` |
-| E1 | UI/Router 特規 | Vue SFC, router | `typescript/base.md`, `command/audit-typescript.md` |
+| A1 | 結構與邊界 | `views/`, `router/` | `core/principles.md`, `language/typescript/base.md` |
+| A2 | 結構與邊界 | `stores/`, `composables/` | `language/typescript/base.md` |
+| B1 | 型別與合約 | `composables/api/modules/` | `language/typescript/base.md`, `language/typescript/custom/api-module.md`, `command/audit-typescript.md` |
+| C1 | 命名與可讀性 | 本輪涉及 TS/Vue 檔案 | `core/principles.md`, `language/typescript/base.md` |
+| D1 | 環境與設定 | `api-client.ts`, `env`, `index.html` | `language/typescript/custom/env.md` |
+| E1 | UI/Router 特規 | Vue SFC, router | `language/typescript/base.md`, `command/audit-typescript.md` |
 | T1 | 測試與驗證 | 本輪測試檔與變更 diff | `core/agent-mandates.md`, plan doc |
 
 ### .NET
 
 | 批次 | Rule Family | Package/Module | 主要來源 |
 |------|-------------|----------------|----------|
-| A1 | 結構與邊界 | `Controllers/`, `Services/` | `dotnet/custom/structure.md` |
-| A2 | 結構與邊界 | `Domain/Entities`, `Infrastructure/Factories` | `dotnet/custom/structure.md` |
-| B1 | 型別與合約 | DTO, entity, response | `dotnet/base.md`, `command/audit-dotnet.md` |
+| A1 | 結構與邊界 | `Controllers/`, `Services/` | `language/dotnet/custom/structure.md` |
+| A2 | 結構與邊界 | `Domain/Entities`, `Infrastructure/Factories` | `language/dotnet/custom/structure.md` |
+| B1 | 型別與合約 | DTO, entity, response | `language/dotnet/base.md`, `command/audit-dotnet.md` |
 | C1 | 命名與文件 | public API, lambda, methods | `core/principles.md`, `command/audit-dotnet.md` |
-| D1 | DI/Env/Time | service ctor, env, audit fields | `core/principles.md`, `dotnet/custom/env.md` |
-| E1 | 套件特規 | logging, query, error, factory | `dotnet/custom/logging.md`, `dotnet/custom/query.md`, `dotnet/custom/error.md` |
+| D1 | DI/Env/Time | service ctor, env, audit fields | `core/principles.md`, `language/dotnet/custom/env.md` |
+| E1 | 套件特規 | logging, query, error, factory | `language/dotnet/custom/logging.md`, `language/dotnet/custom/query.md`, `language/dotnet/custom/error.md` |
 | T1 | 測試與驗證 | test project / 本輪變更 diff | `core/agent-mandates.md`, plan doc |
 
 ### Python
 
 | 批次 | Rule Family | Package/Module | 主要來源 |
 |------|-------------|----------------|----------|
-| A1 | 結構與邊界 | `src/api/routers`, `src/services` | `python/fastapi.md` |
-| A2 | 結構與邊界 | `src/schemas`, `src/models`, `src/factories` | `python/base.md`, `python/fastapi.md` |
-| B1 | 型別與合約 | DTO/schema/response_model | `python/base.md`, `command/audit-python.md` |
-| C1 | 命名與文件 | public class/function | `core/principles.md`, `python/base.md` |
-| D1 | DI/Env/Async | `Depends`, settings, IO | `python/base.md`, `python/fastapi.md` |
-| E1 | FastAPI 特規 | exception, alias, mock contract | `python/fastapi.md`, `core/external-contract.md` |
+| A1 | 結構與邊界 | `src/api/routers`, `src/services` | `language/python/fastapi.md` |
+| A2 | 結構與邊界 | `src/schemas`, `src/models`, `src/factories` | `language/python/base.md`, `language/python/fastapi.md` |
+| B1 | 型別與合約 | DTO/schema/response_model | `language/python/base.md`, `command/audit-python.md` |
+| C1 | 命名與文件 | public class/function | `core/principles.md`, `language/python/base.md` |
+| D1 | DI/Env/Async | `Depends`, settings, IO | `language/python/base.md`, `language/python/fastapi.md` |
+| E1 | FastAPI 特規 | exception, alias, mock contract | `language/python/fastapi.md`, `core/external-contract.md` |
 | T1 | 測試與驗證 | tests / 本輪變更 diff | `core/agent-mandates.md`, plan doc |
 
 ---

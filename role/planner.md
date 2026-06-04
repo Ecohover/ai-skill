@@ -22,14 +22,14 @@ core/principles.md          ← 必讀，通用原則
 core/api-contract.md        ← 涉及 API 時讀取
 core/external-contract.md   ← 涉及第三方時讀取
 command/plan.md             ← 必讀，計畫流程與格式
-[語言]/base.md              ← 進入 B. Design 前，依涉及語言讀取
+language/[語言]/base.md     ← 進入 B. Design 前，依涉及語言讀取
 ```
 
 ### 技術棧識別 (Tech Stack Identification)
 在進入 **B. Design** 階段前，Planner **必須**：
 1. 識別涉及的每個專案為 **前端 (Frontend)** 或 **後端 (Backend)**。
 2. 確認其使用的 **開發語言** (dotnet, typescript, python 等)。
-3. 讀取對應語言的 `[語言]/base.md`，以確保設計方案符合該技術棧的基礎規範。
+3. 讀取對應語言的 `language/[語言]/base.md`，以確保設計方案符合該技術棧的基礎規範。
 
 ### 測試策略判定 (Test Strategy)
 在進入 **C. Execution Plan** 前，Planner **必須**判定本任務的測試策略：

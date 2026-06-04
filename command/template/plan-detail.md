@@ -26,7 +26,7 @@
 - [ ] `core/principles.md`
 
 ### 識別的語言規範 (Language Skills)
-- [ ] `{{LANG}}/base.md`
+- [ ] `language/{{LANG}}/base.md`
 - [ ] （列出其他讀取的技術規範 MD 檔案）
 
 ### 現狀分析

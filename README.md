@@ -66,7 +66,7 @@ adapter 是使用專案產物，不是本規則庫的真理來源。
 
 ### 2. 遵守三階段載入架構
 - **階段 1**: 全域通用原則 (`core/`)。
-- **階段 2**: 語言基礎與特定模組 (`dotnet/`, `typescript/`, `python/`)。
+- **階段 2**: 語言基礎與特定模組 (`language/dotnet/`, `language/typescript/`, `language/python/`)。
 - **階段 3**: 流程控制與驗證 (`command/`)。
 - 新增功能規範時，請按此層級歸類。
 
@@ -75,7 +75,7 @@ adapter 是使用專案產物，不是本規則庫的真理來源。
 - 強制要求計畫任務使用 `doc/plan/[三位序號]-[task-name]/plan.md` 結構。
 
 ### 4. 跨語言一致性
-- 當新增一種程式語言支援時，應參照現有的 `.NET` 或 `TypeScript` 結構，建立 `base.md` 與專案自定義資料夾（`custom/`），確保使用者的開發體驗一致。
+- 當新增一種程式語言支援時，應在 `language/[語言]/` 下參照現有的 `.NET` 或 `TypeScript` 結構，建立 `base.md` 與專案自定義資料夾（`custom/`），確保使用者的開發體驗一致。
 
 ---
 
@@ -86,9 +86,10 @@ AGENT.md             ← AI 入口：載入順序指南與路由對照表
 README.md            ← 本檔：給開發者與維護者的規範
 SKILL.md             ← 給 AI agent 使用的 Skill 啟動入口
 core/                ← 跨語言通用參考 (Universal Principles)
-dotnet/              ← .NET 語言專屬區
-typescript/          ← 前端語言專屬區
-python/              ← Python 語言專屬區
+language/            ← 語言專屬規範
+language/dotnet/     ← .NET 語言專屬區
+language/typescript/ ← 前端語言專屬區
+language/python/     ← Python 語言專屬區
 command/             ← 流程與品質控管 (Plan, Audit)
 command/template/    ← 計畫文件模板
 command/adapt-agent.md ← AI 工具 adapter 產生規範

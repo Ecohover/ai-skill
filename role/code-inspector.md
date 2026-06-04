@@ -31,8 +31,8 @@ command/audit-[lang].md
 ```
 core/api-contract.md         ← 涉及 API 時
 core/external-contract.md    ← 涉及外部系統或 Mock 時
-[語言]/base.md               ← 依實作語言必讀
-[語言]/custom/*.md           ← 只讀本輪檢查需要的模組規則
+language/[語言]/base.md      ← 依實作語言必讀
+language/[語言]/custom/*.md  ← 只讀本輪檢查需要的模組規則
 doc/plan/[id]-[name]/plan.md ← 計畫任務才讀
 ```
 
