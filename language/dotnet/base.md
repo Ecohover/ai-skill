@@ -7,8 +7,11 @@
 | MUST | 使用 File-scoped namespace（`namespace Foo.Bar;`，不帶大括號）|
 | MUST | 縮排使用 4 個空格 |
 | MUST | `if`/`for`/`foreach` 等控制流程必須加 `{}`，即使只有一行 |
+| MUST | 一個 `.cs` 檔案只定義一個主要 `class` / `record` / `struct` / `interface` / `enum` |
 | MUST | IO 操作使用 Async/Await |
 | MUST NOT | namespace 宣告帶大括號 |
+
+> 例外：小型 private nested type 可保留在所屬 class 內；若型別會被其他檔案引用，必須獨立成檔。
 
 ## 集合與封裝（CA1002/CA2227）
 

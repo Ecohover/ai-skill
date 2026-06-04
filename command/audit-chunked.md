@@ -52,6 +52,7 @@ Batch A1
 - TypeScript: View / router / store / API module 邊界
 - .NET: Controller / Service / Factory / Entity 分層
 - Python: router / service / schema / model / factory 分層
+- 單一資料夾超過 10 個檔案時，是否已先詢問使用者確認分層方式
 
 ### B. 型別、資料模型、合約
 
@@ -81,6 +82,7 @@ Batch A1
 - handler / composable / service 方法命名
 - lambda 參數語意
 - XML docstring / Google docstring
+- .NET 一個 `.cs` 檔案是否只定義一個主要型別
 
 ### D. 依賴、設定、環境、時間
 

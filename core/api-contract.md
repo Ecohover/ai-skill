@@ -90,6 +90,8 @@ export interface ApiResult<T> {
 | MUST | 前端比對或賦值使用 `.toUpperCase()` 或 `nameof` 轉大寫 |
 | MUST NOT | 用數字表示 Enum 值 |
 
+> 外部合作 API 例外：Mock 或對接外部 API 時，Enum 格式以 `core/external-contract.md` 的外部合約為準；內部 Service 層再轉回專案標準全大寫格式。
+
 ## 錯誤碼格式
 
 格式：`{系統代號}-{領域前綴}-{代碼}`
