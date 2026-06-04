@@ -10,7 +10,7 @@
 
 | 維度 | 說明 |
 |------|------|
-| Rule Family | A, B, C, D, E |
+| Rule Family | A, B, C, D, E, T |
 | Language | .NET / TypeScript / Python |
 | Package/Module | 例如 `Controllers`、`Services`、`composables/api/modules` |
 | File Batch | 本輪要讀的 3-5 個檔案 |
@@ -110,6 +110,22 @@ Batch A1
   - custom exception + exception_handler
   - async database access
 
+### T. 測試與驗證
+
+檢查本次變更是否依風險導向測試策略執行，避免把測試充分性與 coding style 混在同批。
+
+- `core/agent-mandates.md`
+- `role/planner.md`
+- `role/builder.md`
+- `role/reviewer.md`
+- plan doc 的測試策略與 Implementation Record（如適用）
+
+適合一起檢查的例子：
+- Bug fix 是否先重現失敗並補 regression test。
+- 核心邏輯、API contract、資料轉換、權限、金流、同步、排程、環境設定是否先測試。
+- 測試是否覆蓋行為，而不是只鎖定實作細節。
+- 無測試時是否有合理原因與替代驗證。
+
 ---
 
 ## 2. 每批讀取策略
@@ -151,6 +167,7 @@ Batch A1
 3. `C. 命名與可讀性`
 4. `D. 依賴、設定、環境、時間`
 5. `E. 框架/套件特規`
+6. `T. 測試與驗證`
 
 若是計畫任務，最前面先加：
 
@@ -172,6 +189,7 @@ Batch A1
 | C1 | 命名與可讀性 | 本輪涉及 TS/Vue 檔案 | `core/principles.md`, `typescript/base.md` |
 | D1 | 環境與設定 | `api-client.ts`, `env`, `index.html` | `typescript/custom/env.md` |
 | E1 | UI/Router 特規 | Vue SFC, router | `typescript/base.md`, `command/audit-typescript.md` |
+| T1 | 測試與驗證 | 本輪測試檔與變更 diff | `core/agent-mandates.md`, plan doc |
 
 ### .NET
 
@@ -183,6 +201,7 @@ Batch A1
 | C1 | 命名與文件 | public API, lambda, methods | `core/principles.md`, `command/audit-dotnet.md` |
 | D1 | DI/Env/Time | service ctor, env, audit fields | `core/principles.md`, `dotnet/custom/env.md` |
 | E1 | 套件特規 | logging, query, error, factory | `dotnet/custom/logging.md`, `dotnet/custom/query.md`, `dotnet/custom/error.md` |
+| T1 | 測試與驗證 | test project / 本輪變更 diff | `core/agent-mandates.md`, plan doc |
 
 ### Python
 
@@ -194,6 +213,7 @@ Batch A1
 | C1 | 命名與文件 | public class/function | `core/principles.md`, `python/base.md` |
 | D1 | DI/Env/Async | `Depends`, settings, IO | `python/base.md`, `python/fastapi.md` |
 | E1 | FastAPI 特規 | exception, alias, mock contract | `python/fastapi.md`, `core/external-contract.md` |
+| T1 | 測試與驗證 | tests / 本輪變更 diff | `core/agent-mandates.md`, plan doc |
 
 ---
 

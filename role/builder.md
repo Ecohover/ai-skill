@@ -42,6 +42,9 @@ core/principles.md          ← 必讀
 - 範圍只限 B. Design 列出的檔案，不得自行擴充。
 - 若發現計畫有重大缺漏或錯誤，停止實作，回報 Planner 更新計畫後再繼續。
 - 若只需要小幅偏離計畫才能完成任務，先記錄原因與影響範圍，再繼續實作，並在 D. Implementation Record 說明。
+- 若 C. Execution Plan 標記為 **TDD / 先測試**，必須先新增或確認失敗測試，再實作，最後執行測試確認通過。
+- 若找不到既有測試框架，不得自行建立大型測試架構；必須回報 Planner 或使用者確認，並在 D. Implementation Record 說明替代驗證方式。
+- 若任務不要求 TDD，完成後仍應執行計畫指定的測試、build、lint、static check 或替代驗證。
 
 ## 輸出責任
 
@@ -51,6 +54,7 @@ core/principles.md          ← 必讀
 |------|------|
 | 實際修改檔案清單 | 與 Design 的差異需標注 |
 | 偏離說明 | 若與計畫不同，說明原因 |
+| 測試與驗證紀錄 | 執行的測試、build、lint、static check，或無法執行的原因與替代驗證 |
 | 給 Reviewer 的備注 | 需要特別關注的地方 |
 
 ## 交接動作

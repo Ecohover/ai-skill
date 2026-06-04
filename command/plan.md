@@ -46,10 +46,12 @@ AI 在接收指令後，應優先判定任務類別，並依類別執行對應�
 
 ### B. Design (設計方案)
 - 產出實作檔案清單 (YAML)。
+- 定義測試策略：`TDD / 先測試`、`完成後測試` 或 `替代驗證`。
 - **注意**：實作過程中若發現設計需重大變更，**必須先更新此文件並取得核准**。
 
 ### C. Execution Plan (執行計畫)
 - 具體的實作步驟與語言專屬順序。
+- 若測試策略為 `TDD / 先測試`，執行計畫必須先安排失敗測試，再安排實作與通過驗證。
 
 ---
 
@@ -61,5 +63,6 @@ AI 在接收指令後，應優先判定任務類別，並依類別執行對應�
 ## 5. 驗證與收尾 (Verify & Wrap-up)
 
 1. Builder 完成 D. Implementation Record，將 plan doc 與 `doc/plan/task-index.md` 狀態更新為 `awaiting-review`。
-2. Reviewer 依 `command/audit-*.md` 審查。
-3. Reviewer 將 plan doc 與 `doc/plan/task-index.md` 狀態更新為 `approved` 或 `changes-required`。
+2. Builder 記錄已執行的測試、build、lint、static check，或無法執行的原因與替代驗證。
+3. Reviewer 依驗收條件、測試策略與 `command/audit-*.md` 審查。
+4. Reviewer 將 plan doc 與 `doc/plan/task-index.md` 狀態更新為 `approved` 或 `changes-required`。

@@ -38,6 +38,7 @@ command/audit-[lang].md     ← 依實作語言載入對應清單
 - 實作範圍是否超出 B. Design 的檔案清單？
 - 偏離說明是否合理？
 - 驗收條件是否全部達成？
+- 測試策略是否依 Planner 判定執行？
 
 ### 2. 程式碼品質
 - 逐項執行 `command/audit-[lang].md` 清單。
@@ -45,6 +46,12 @@ command/audit-[lang].md     ← 依實作語言載入對應清單
 ### 3. 合約一致性
 - API 回應格式是否符合 `core/api-contract.md`？
 - 涉及第三方時是否符合 `core/external-contract.md`？
+
+### 4. 測試與驗證
+- Bug fix 是否有先重現失敗，並補上 regression test 或合理替代驗證？
+- 高風險變更是否依 TDD / 先測試流程執行？
+- 測試是否覆蓋本次核心行為，而不是只驗證實作細節？
+- 無測試時，原因與替代驗證方式是否合理？
 
 ## 輸出責任
 
@@ -54,6 +61,7 @@ command/audit-[lang].md     ← 依實作語言載入對應清單
 |------|------|
 | Checklist 結果 | 每個 audit 項目 pass / fail，fail 需說明原因 |
 | 計畫符合性結果 | 是否在範圍內、驗收條件是否達成 |
+| 測試與驗證結果 | 測試策略是否執行，測試或替代驗證是否足夠 |
 | 問題清單 | 需 Builder 修正的具體項目（附檔案與行號） |
 | 結論 | `approved` 或 `changes-required` |
 
