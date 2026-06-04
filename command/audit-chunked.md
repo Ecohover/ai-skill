@@ -12,6 +12,7 @@
 |------|------|
 | Rule Family | A, B, C, D, E, T |
 | Language | .NET / TypeScript / Python |
+| Package/Profile | 例如 `common-utils`、`unit-profile`，無則填 N/A |
 | Package/Module | 例如 `Controllers`、`Services`、`composables/api/modules` |
 | File Batch | 本輪要讀的 3-5 個檔案 |
 
@@ -43,6 +44,8 @@ Batch A1
 - `core/principles.md`
 - `AGENT.md`
 - `language/[lang]/base.md`
+- `package/[common-package]/*.md`（如適用）
+- `unit/[unit-profile]/*.md`（如適用）
 - `language/[lang]/custom/structure*.md` 或框架結構檔
 
 適合一起檢查的例子：
@@ -56,6 +59,8 @@ Batch A1
 
 - `core/api-contract.md`（如適用）
 - `language/[lang]/base.md`
+- `package/[common-package]/api-response.md`（如適用）
+- `unit/[unit-profile]/package-profile.md`（如適用）
 - `command/audit-[lang].md`
 
 適合一起檢查的例子：
@@ -83,6 +88,7 @@ Batch A1
 
 - `core/principles.md`
 - `language/[lang]/custom/env*.md`
+- `package/[common-package]/environment.md`（如適用）
 - `language/[lang]/framework*.md`
 - `command/audit-[lang].md`
 

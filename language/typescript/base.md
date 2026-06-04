@@ -22,11 +22,11 @@
 | MUST NOT | 使用 Options API（`export default { data() {} }`）|
 | MUST NOT | 在 `<template>` 中寫複雜邏輯，應抽至 composable |
 
-## Dachan Shared 元件與主檔頁面
+## Shared 元件與主檔頁面
 
 | 約束 | 說明 |
 |------|------|
-| MUST | OMS/WMS/TMS 既有共用元件可滿足需求時，優先使用 `@dachan/shared` 或專案既有標準元件 |
+| MUST | 既有共用元件可滿足需求時，優先使用開發單位 profile 指定的 shared package 或專案既有標準元件 |
 | MUST | 主檔列表頁優先參考商品、客戶、訂單等既有 List/SearchTable 版型，保持搜尋區、列表外框、分頁與操作欄一致 |
 | MUST | 主檔新增、查看、編輯優先使用 detail 頁模式，參考商品/客戶主檔的 `DetailPageShell`、`DetailPageHeader`、`DetailFieldSection` |
 | MUST | detail 頁的編輯行為使用頁首「編輯 / 儲存 / 取消」動作切換唯讀與可編輯狀態 |

@@ -1,6 +1,6 @@
 ---
 name: ai-engineering-workflow
-description: Use when an AI agent works with this prompt rule pack, needs Planner/Builder/Reviewer/Code Inspector routing, must load engineering rules from AGENT.md, core, role, or language folders, or needs plan docs, adapter markdown, or rule-based audits.
+description: Use when an AI agent works with this prompt rule pack, needs Planner/Builder/Reviewer/Code Inspector routing, must load engineering rules from AGENT.md, core, role, language, package, or unit folders, or needs plan docs, adapter markdown, or rule-based audits.
 ---
 
 # AI 工程協作 Skill
@@ -24,6 +24,8 @@ description: Use when an AI agent works with this prompt rule pack, needs Planne
 - `role/`：角色責任與交接規則。
 - `core/`：跨語言工程原則與合約。
 - `language/`：語言專屬規範，依語言分為 `dotnet/`、`typescript/`、`python/` 等子目錄。
+- `package/`：共用套件使用規範，可依套件整包替換。
+- `unit/`：開發單位 profile，定義具體套件名稱與單位特規。
 - `command/`：計畫、審查、分批稽核與 adapter 產生流程。
 - `command/template/`：計畫文件模板。
 - `doc/plan/`：實際任務紀錄產物。

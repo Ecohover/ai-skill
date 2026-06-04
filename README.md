@@ -49,7 +49,7 @@ adapter 是使用專案產物，不是本規則庫的真理來源。
 1. **按需載入**：AI 僅讀取與當前任務角色、語言、模組相關的規範。
 2. **角色分工**：Planner、Builder、Reviewer、Code Inspector 分別負責規劃、實作、審查與分批稽核。
 3. **任務記錄**：簡單任務直接執行；計畫任務在 `doc/plan/` 下留下索引與詳細計畫。
-4. **單一真理來源**：`AGENT.md` 是 AI 路由來源，`role/`、`core/`、`command/` 與語言目錄提供細部規則。
+4. **單一真理來源**：`AGENT.md` 是 AI 路由來源，`role/`、`core/`、`language/`、`package/`、`unit/` 與 `command/` 提供細部規則。
 
 > `command/template/` 是本規則庫的版本化模板；`doc/plan/` 是各使用專案執行任務時產生的紀錄，應被 ignore，不提交回規則庫 repo。
 
@@ -67,7 +67,8 @@ adapter 是使用專案產物，不是本規則庫的真理來源。
 ### 2. 遵守三階段載入架構
 - **階段 1**: 全域通用原則 (`core/`)。
 - **階段 2**: 語言基礎與特定模組 (`language/dotnet/`, `language/typescript/`, `language/python/`)。
-- **階段 3**: 流程控制與驗證 (`command/`)。
+- **階段 3**: 共用套件與開發單位 profile (`package/`, `unit/`)。
+- **階段 4**: 流程控制與驗證 (`command/`)。
 - 新增功能規範時，請按此層級歸類。
 
 ### 3. 維護任務判定邏輯
@@ -76,6 +77,11 @@ adapter 是使用專案產物，不是本規則庫的真理來源。
 
 ### 4. 跨語言一致性
 - 當新增一種程式語言支援時，應在 `language/[語言]/` 下參照現有的 `.NET` 或 `TypeScript` 結構，建立 `base.md` 與專案自定義資料夾（`custom/`），確保使用者的開發體驗一致。
+
+### 5. 共用套件與開發單位分離
+- coding style 放在 `language/`，不要綁定公司或套件名稱。
+- 共用套件行為放在 `package/[套件]/`，若改用另一組共用套件可整包替換。
+- 開發單位實際名稱與 profile 放在 `unit/[開發單位]/`。
 
 ---
 
@@ -90,6 +96,8 @@ language/            ← 語言專屬規範
 language/dotnet/     ← .NET 語言專屬區
 language/typescript/ ← 前端語言專屬區
 language/python/     ← Python 語言專屬區
+package/             ← 共用套件使用規範
+unit/                ← 開發單位 profile
 command/             ← 流程與品質控管 (Plan, Audit)
 command/template/    ← 計畫文件模板
 command/adapt-agent.md ← AI 工具 adapter 產生規範

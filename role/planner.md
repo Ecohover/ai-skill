@@ -21,6 +21,8 @@ core/agent-mandates.md      ← 必讀，作業原則
 core/principles.md          ← 必讀，通用原則
 core/api-contract.md        ← 涉及 API 時讀取
 core/external-contract.md   ← 涉及第三方時讀取
+package/[共用套件]/*.md      ← 專案採用共用套件時，按需載入
+unit/[開發單位]/*.md        ← 專案指定開發單位規範時，按需載入
 command/plan.md             ← 必讀，計畫流程與格式
 language/[語言]/base.md     ← 進入 B. Design 前，依涉及語言讀取
 ```
@@ -30,6 +32,7 @@ language/[語言]/base.md     ← 進入 B. Design 前，依涉及語言讀取
 1. 識別涉及的每個專案為 **前端 (Frontend)** 或 **後端 (Backend)**。
 2. 確認其使用的 **開發語言** (dotnet, typescript, python 等)。
 3. 讀取對應語言的 `language/[語言]/base.md`，以確保設計方案符合該技術棧的基礎規範。
+4. 若專案採用共用套件或開發單位 profile，讀取對應的 `package/[共用套件]/*.md` 與 `unit/[開發單位]/*.md`。
 
 ### 測試策略判定 (Test Strategy)
 在進入 **C. Execution Plan** 前，Planner **必須**判定本任務的測試策略：
@@ -47,7 +50,7 @@ Planner 必須完整填寫 plan doc 的以下 section：
 | Section | 內容 |
 |---------|------|
 | 涉及專案 | 填寫專案名稱、路徑、**類型 (FE/BE)**、**語言**。 |
-| A. Research | 讀取的規則、現狀分析、技術棧確認。 |
+| A. Research | 讀取的規則、現狀分析、技術棧、共用套件與開發單位 profile 確認。 |
 | B. Design | 實作檔案清單（YAML）、邏輯說明、測試策略、**讀取的語言規範 (Skill)**。 |
 | C. Execution Plan | 具體執行步驟、是否 TDD、驗收條件與驗證指令。 |
 

@@ -18,8 +18,6 @@
 
 | 套件/服務 | Enum |
 |----------|------|
-| `{Project}.MongoRepository` | `MongoRepositoryEnvironmentVariables` |
-| `{Project}.Common.EventDriven` | `EventEnvironmentVariable` |
 | 服務自有 | `{App}EnvironmentVariable` |
 
 ## 範例

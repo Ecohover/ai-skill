@@ -4,9 +4,9 @@
 
 ## 回應格式
 
-大成專案的標準 API 回應結構為 `DachanApiResponse<T>`，對外 JSON 欄位固定如下。
+專案標準 API 回應結構為 `{Project}ApiResponse<T>`，實際型別名稱依開發單位或共用套件 profile 定義，對外 JSON 欄位固定如下。
 
-所有 API 回應由 `ApiResponseMiddleware` 統一封裝成 `DachanApiResponse<T>`，**Controller 禁止手動封裝 `DachanApiResponse` / `ApiResult` / 自訂 wrapper**：
+所有 API 回應由專案標準 middleware 統一封裝成 `{Project}ApiResponse<T>`，**Controller 禁止手動封裝 `{Project}ApiResponse` / `ApiResult` / 自訂 wrapper**：
 
 ```json
 {

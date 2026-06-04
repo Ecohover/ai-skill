@@ -20,6 +20,8 @@ core/agent-mandates.md      ← 必讀
 core/principles.md          ← 必讀
 core/api-contract.md        ← 涉及 API 時讀取
 core/external-contract.md   ← 涉及第三方時讀取
+package/[共用套件]/*.md      ← 計畫指定或專案採用共用套件時讀取
+unit/[開發單位]/*.md        ← 計畫指定或專案採用開發單位 profile 時讀取
 command/audit-[lang].md     ← 依實作語言載入對應清單
 ```
 
@@ -29,6 +31,8 @@ core/agent-mandates.md      ← 必讀
 core/principles.md          ← 必讀
 core/api-contract.md        ← 涉及 API 時讀取
 core/external-contract.md   ← 涉及第三方時讀取
+package/[共用套件]/*.md      ← 任務涉及共用套件時讀取
+unit/[開發單位]/*.md        ← 任務涉及開發單位 profile 時讀取
 command/audit-[lang].md     ← 依實作語言載入對應清單
 ```
 
