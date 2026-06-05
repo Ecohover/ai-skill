@@ -22,20 +22,22 @@ Builder 負責依照 Planner 產出的計畫文件實作程式碼，並在完成
 doc/plan/[id]-[name]/plan.md ← 必讀，了解計畫範圍
 core/agent-mandates.md      ← 必讀
 core/principles.md          ← 必讀
+core/api-routing.md         ← 涉及 API route / HTTP verb 時讀取
 package/[共用套件]/*.md      ← 計畫指定或專案採用共用套件時讀取
 unit/[開發單位]/*.md        ← 計畫指定或專案採用開發單位 profile 時讀取
 language/[語言]/base.md     ← 依任務語言載入
-language/[語言]/[專案類型]/[模組].md ← 依任務模組精準載入 1-2 個
+language/[語言]/custom/[模組].md ← 依任務模組精準載入 1-2 個
 ```
 
 **簡單任務（無 plan doc）：**
 ```
 core/agent-mandates.md      ← 必讀
 core/principles.md          ← 必讀
+core/api-routing.md         ← 涉及 API route / HTTP verb 時讀取
 package/[共用套件]/*.md      ← 任務涉及共用套件時讀取
 unit/[開發單位]/*.md        ← 任務涉及開發單位 profile 時讀取
 language/[語言]/base.md     ← 依任務語言載入
-language/[語言]/[專案類型]/[模組].md ← 依任務模組精準載入 1-2 個
+language/[語言]/custom/[模組].md ← 依任務模組精準載入 1-2 個
 ```
 
 禁止跨語言載入。

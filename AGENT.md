@@ -46,6 +46,7 @@ role/planner.md
 core/agent-mandates.md
 core/principles.md
 core/api-contract.md        ← 涉及 API 時
+core/api-routing.md         ← 涉及 API route / HTTP verb 時
 core/external-contract.md   ← 涉及第三方時
 package/[共用套件]/*.md      ← 專案採用共用套件時，按需載入
 unit/[開發單位]/*.md        ← 專案指定開發單位規範時，按需載入
@@ -61,7 +62,7 @@ core/principles.md
 package/[共用套件]/*.md      ← 專案採用共用套件時，按需載入
 unit/[開發單位]/*.md        ← 專案指定開發單位規範時，按需載入
 language/[語言]/base.md     ← 依任務語言選一種
-language/[語言]/[專案類型]/[模組].md ← 精準選 1-2 個
+language/[語言]/custom/[模組].md ← 精準選 1-2 個
 doc/plan/[id]-[name]/plan.md ← 計畫任務才讀
 ```
 
@@ -71,10 +72,12 @@ role/reviewer.md
 core/agent-mandates.md
 core/principles.md
 core/api-contract.md        ← 涉及 API 時
+core/api-routing.md         ← 涉及 API route / HTTP verb 時
 core/external-contract.md   ← 涉及第三方時
 package/[共用套件]/*.md      ← 專案採用共用套件時，按需載入
 unit/[開發單位]/*.md        ← 專案指定開發單位規範時，按需載入
 command/audit-[lang].md     ← 依實作語言選一種
+language/[語言]/custom/[模組].md ← audit 無法判定或疑似 fail 時再讀對應細規則
 doc/plan/[id]-[name]/plan.md ← 計畫任務才讀
 ```
 
@@ -84,6 +87,7 @@ role/code-inspector.md
 core/agent-mandates.md
 core/principles.md
 core/api-contract.md         ← 涉及 API 時
+core/api-routing.md          ← 涉及 API route / HTTP verb 時
 package/[共用套件]/*.md      ← 專案採用共用套件時，按需載入
 unit/[開發單位]/*.md        ← 專案指定開發單位規範時，按需載入
 language/[語言]/base.md      ← 依實作語言選一種

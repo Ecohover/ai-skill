@@ -14,8 +14,9 @@ description: Use when an AI agent works with this prompt rule pack, needs Planne
 1. 讀取 `AGENT.md`。
 2. 判斷任務應由 Planner、Builder、Reviewer 或 Code Inspector 處理。
 3. 只載入該角色、語言、流程與模組需要的文件。
-4. 依角色文件執行任務，不得混用其他角色責任。
-5. 若 AI 工具需要專屬入口 md，依 `command/adapt-agent.md` 產生 adapter。
+4. 除非正在處理計畫任務，搜尋或讀取規則庫時排除 `doc/plan/`，避免任務產物污染判斷。
+5. 依角色文件執行任務，不得混用其他角色責任。
+6. 若 AI 工具需要專屬入口 md，依 `command/adapt-agent.md` 產生 adapter。
 
 ## 目錄對照
 

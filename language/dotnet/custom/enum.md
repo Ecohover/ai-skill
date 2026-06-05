@@ -6,7 +6,7 @@
 |------|------|
 | MUST | 分類欄位使用 Enum 定義 |
 | MUST | 有限條列式字串欄位必須使用 Enum source 定義，例如狀態、類型、階段、來源、處理結果 |
-| MUST NOT | 對有限條列式值直接手寫 magic string；應使用 `nameof(SomeEnum.SOME_VALUE)`、converter、factory 或明確 mapping 產生 |
+| MUST NOT | 對有限條列式值直接手寫 magic string；boundary / mapping / 初始化字串可用 `nameof(SomeEnum.SOME_VALUE)`、converter、factory 或明確 mapping 產生 |
 | MUST | Enum type 使用 PascalCase，可依專案既有慣例使用 `Enum` 後綴（如 `ErpSyncStatusEnum`）|
 | MUST | Enum member 使用全大寫 snake_case，單字之間用底線（如 `NOT_SYNCED`、`SENT_TO_ERP_SUCCESS`）|
 | MUST | API / DB / 內部服務看到 enum 字串時，必須能明確辨識這是受控 enum 值，而不是任意 string |
@@ -53,7 +53,7 @@ public IEnumerable<TempZoneEnum> TempZones { get; set; } = [];
 order.SyncStatus == ErpSyncStatusEnum.NOT_SYNCED
 ```
 
-若欄位因 API / DB boundary 必須是 string，只能在 boundary / mapping / query helper 轉換，不在商業邏輯中手動 `.ToString()` 後比對：
+若欄位因 API / DB boundary 必須是 string，只能在 boundary / mapping / query helper 轉換；Service / Domain / Query 條件不得手動 `.ToString()` 或 `nameof()` 後比對：
 
 ```csharp
 // Good
@@ -63,4 +63,5 @@ queryOptions.AddEqualsEnumIfProvided(
 
 // Bad
 order.SyncStatus == ErpSyncStatusEnum.NOT_SYNCED.ToString()
+order.SyncStatus == nameof(ErpSyncStatusEnum.NOT_SYNCED)
 ```

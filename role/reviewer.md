@@ -19,10 +19,12 @@ doc/plan/[id]-[name]/plan.md ← 必讀，了解驗收條件與計畫範圍
 core/agent-mandates.md      ← 必讀
 core/principles.md          ← 必讀
 core/api-contract.md        ← 涉及 API 時讀取
+core/api-routing.md         ← 涉及 API route / HTTP verb 時讀取
 core/external-contract.md   ← 涉及第三方時讀取
 package/[共用套件]/*.md      ← 計畫指定或專案採用共用套件時讀取
 unit/[開發單位]/*.md        ← 計畫指定或專案採用開發單位 profile 時讀取
 command/audit-[lang].md     ← 依實作語言載入對應清單
+language/[語言]/custom/[模組].md ← audit 無法判定或疑似 fail 時再讀對應細規則
 ```
 
 **簡單任務：**
@@ -30,10 +32,12 @@ command/audit-[lang].md     ← 依實作語言載入對應清單
 core/agent-mandates.md      ← 必讀
 core/principles.md          ← 必讀
 core/api-contract.md        ← 涉及 API 時讀取
+core/api-routing.md         ← 涉及 API route / HTTP verb 時讀取
 core/external-contract.md   ← 涉及第三方時讀取
 package/[共用套件]/*.md      ← 任務涉及共用套件時讀取
 unit/[開發單位]/*.md        ← 任務涉及開發單位 profile 時讀取
 command/audit-[lang].md     ← 依實作語言載入對應清單
+language/[語言]/custom/[模組].md ← audit 無法判定或疑似 fail 時再讀對應細規則
 ```
 
 ## 審查範圍
@@ -46,9 +50,11 @@ command/audit-[lang].md     ← 依實作語言載入對應清單
 
 ### 2. 程式碼品質
 - 逐項執行 `command/audit-[lang].md` 清單。
+- 若 audit 項目無法判定或疑似 fail，只載入該項對應的 `language/[語言]/custom/[模組].md`，不得一次載入全部 custom 規則。
 
 ### 3. 合約一致性
 - API 回應格式是否符合 `core/api-contract.md`？
+- API route / HTTP verb 是否符合 `core/api-routing.md`？
 - 涉及第三方時是否符合 `core/external-contract.md`？
 
 ### 4. 測試與驗證

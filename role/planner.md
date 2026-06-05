@@ -20,6 +20,7 @@ Planner 不寫程式碼，只輸出文件。
 core/agent-mandates.md      ← 必讀，作業原則
 core/principles.md          ← 必讀，通用原則
 core/api-contract.md        ← 涉及 API 時讀取
+core/api-routing.md         ← 涉及 API route / HTTP verb 時讀取
 core/external-contract.md   ← 涉及第三方時讀取
 package/[共用套件]/*.md      ← 專案採用共用套件時，按需載入
 unit/[開發單位]/*.md        ← 專案指定開發單位規範時，按需載入

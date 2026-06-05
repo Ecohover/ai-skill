@@ -30,6 +30,7 @@ command/audit-[lang].md
 ### 視情況載入
 ```
 core/api-contract.md         ← 涉及 API 時
+core/api-routing.md          ← 涉及 API route / HTTP verb 時
 core/external-contract.md    ← 涉及外部系統或 Mock 時
 package/[共用套件]/*.md      ← 本批檢查共用套件行為時
 unit/[開發單位]/*.md        ← 本批檢查開發單位 profile 時

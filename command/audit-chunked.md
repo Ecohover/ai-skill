@@ -204,7 +204,7 @@ Batch A1
 
 | 批次 | Rule Family | Package/Module | 主要來源 |
 |------|-------------|----------------|----------|
-| A1 | 結構與邊界 | `Controllers/`, `Services/` | `language/dotnet/custom/structure.md` |
+| A1 | 結構與邊界 | `Controllers/`, `Services/` | `language/dotnet/custom/structure.md`, `language/dotnet/custom/routing.md` |
 | A2 | 結構與邊界 | `Domain/Entities`, `Infrastructure/Factories` | `language/dotnet/custom/structure.md` |
 | B1 | 型別與合約 | DTO, entity, response | `language/dotnet/base.md`, `command/audit-dotnet.md` |
 | C1 | 命名與文件 | public API, lambda, methods | `core/principles.md`, `command/audit-dotnet.md` |

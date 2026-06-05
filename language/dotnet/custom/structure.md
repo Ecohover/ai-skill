@@ -22,16 +22,6 @@
 | MUST | 有限條列式狀態或類型欄位使用 Enum source 定義，不以任意 string 表達 |
 | MUST | 若採用特定 repository / audit 共用套件，套件特規放在 `package/` profile，不寫死在語言層 |
 
-```csharp
-public class Warehouse
-{
-    public required string Id { get; set; }
-    public required string Code { get; set; }
-    public required string Status { get; set; }
-    public string? Remark { get; set; }
-}
-```
-
 ## DTO 命名規則
 
 | 類型 | 命名格式 | 範例 |
@@ -66,56 +56,7 @@ public string TypeDisplay => Type switch
 | MUST | 僅處理 Request/Response，不含商業邏輯 |
 | MUST NOT | 手動封裝 API response wrapper / `ApiResult` / 自訂 wrapper（由專案標準 middleware 統一處理）|
 
-### API 路徑命名
-
-Controller 名稱已代表資源名稱，例如 `SalesOrderController` 對應 `/api/SalesOrder`。Action route 不得再重複 `SalesOrder` 或完整 method 名稱。
-
-| 情境 | Route 命名 |
-|------|------------|
-| 查詢 | `query` |
-| 新增 | `create` |
-| 更新 | `update` |
-| 子資源更新 | `{sub-resource}/update` |
-| 批次操作 | 動作後加 `-batch` |
-| 外部系統流程 | 以子路徑分組，例如 `erp/forward` |
-| 特殊檔案或文件 | 使用明確名詞，例如 `shipment-pdf` |
-
-| 範例 | 說明 |
-|------|------|
-| `POST /api/SalesOrder/query` | 主資源查詢 |
-| `GET /api/SalesOrder/{salesOrderId}/product-prices` | 指定單據的子資源 |
-| `POST /api/SalesOrder/product-prices/query` | 子資源查詢 |
-| `PATCH /api/SalesOrder/update` | 主資源更新 |
-| `PATCH /api/SalesOrder/status/update` | 狀態更新 |
-| `PATCH /api/SalesOrder/status/update-batch` | 狀態批次更新 |
-| `PATCH /api/SalesOrder/items/update` | 明細更新 |
-| `POST /api/SalesOrder/erp/forward` | 外部系統流程 |
-| `POST /api/SalesOrder/erp/forward-batch` | 外部系統批次流程 |
-| `POST /api/SalesOrder/erp/cancel` | 外部系統取消 |
-| `POST /api/SalesOrder/erp/cancel-batch` | 外部系統批次取消 |
-| `POST /api/SalesOrder/erp/sync` | 外部系統同步 |
-| `POST /api/SalesOrder/lock` | 特殊動作 |
-| `POST /api/SalesOrder/unlock` | 特殊動作 |
-| `GET /api/SalesOrder/shipment-pdf` | 文件 API |
-
-HTTP Verb：查詢/新增/匯入/流程操作用 `[HttpPost]`；更新（含狀態變更、子資源更新）用 `[HttpPatch]`；指定資源或文件讀取用 `[HttpGet]`；刪除才用 `[HttpDelete]`。
-
-```csharp
-[ApiController]
-[Route("api/[controller]")]
-public class WarehouseController(IWarehouseService _warehouseService) : Controller
-{
-    [HttpPost("query")]
-    [ProducesResponseType<PageResultDto<OutWarehouseDto>>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> QueryAsync(
-        InQueryWarehouseDto queryDto,
-        CancellationToken cancellationToken)
-    {
-        var result = await _warehouseService.QueryAsync(queryDto, cancellationToken);
-        return Ok(result);
-    }
-}
-```
+路由命名、HTTP Verb 與 Controller 範例依 `language/dotnet/custom/routing.md`。
 
 ## Service 規範
 

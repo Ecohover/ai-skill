@@ -22,7 +22,7 @@ AI 在接收指令後，應優先判定任務類別，並依類別執行對應�
 > `doc/plan/` 是實際任務產物，已由本規則庫的 `.gitignore` 排除；`command/template/` 才是應保留在版控中的模板來源。
 
 ### 序號獲取
-在建立新計畫前，**必須**先讀取 `doc/plan/task-index.md`。
+在建立新計畫前，**必須**先讀取 `doc/plan/task-index.md`；若檔案不存在，依 `command/template/task-index.md` 建立。
 若不存在，從 `command/template/task-index.md` 建立初始索引，第一筆任務編號為 `001`。
 
 ### 第一層：計畫索引 (`doc/plan/task-index.md`)
