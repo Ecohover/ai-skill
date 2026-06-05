@@ -87,7 +87,7 @@ export interface ApiResult<T> {
 | 約束 | 說明 |
 |------|------|
 | MUST | 自家前端 API 傳輸的 Enum 值為**全大寫 snake_case 字串**（如 `"ACTIVE"`、`"ROOMTEM"`、`"SENT_TO_ERP_SUCCESS"`）|
-| MUST | 前端比對或賦值使用 `.toUpperCase()` 或 `nameof` 轉大寫 |
+| MUST | 前端收到 API enum 字串時，以全大寫 snake_case 值比對；後端 C# 內部邏輯依 `language/dotnet/custom/enum.md` 直接使用 enum 型別比對 |
 | MUST NOT | 用數字表示 Enum 值 |
 
 > 外部合作 API 例外：Mock 或對接外部 API 時，Enum 格式以 `core/external-contract.md` 的外部合約為準；內部 Service 層再轉回專案標準全大寫格式。

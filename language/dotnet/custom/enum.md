@@ -13,6 +13,7 @@
 | MUST | 需要人類可讀中文顯示文字時，使用 `[Description("...")]` 標註 enum member |
 | MUST | 會進出資料庫、內部服務或自家前端 API 的 Enum 必須有明確序列化機制，確保 JSON（API）與 BSON（MongoDB）使用 enum member 名稱字串 |
 | MUST | 資料庫進出、內部服務傳遞、自家前端溝通時，Enum 值一律使用全大寫字串 |
+| MUST | 程式內邏輯判斷與查詢條件比對時，使用 enum 型別直接比對，不先轉成 string |
 | PREFER | 若專案既有使用 `[UpperCaseEnum]`，可繼續使用；若已由全域 converter 或共用套件保證 enum string 序列化，則不強制加 `[UpperCaseEnum]` |
 | MUST | 純量 Enum 欄位（Entity & DTO）傳輸與儲存使用 string，由序列化層自動轉換 |
 | MUST | 集合型 Enum 欄位使用 Enum 集合（`IEnumerable<TempZone>`），不使用 `IEnumerable<string>` |
@@ -46,8 +47,20 @@ public required string Status { get; set; } = nameof(ErpSyncStatusEnum.NOT_SYNCE
 public IEnumerable<TempZoneEnum> TempZones { get; set; } = [];
 ```
 
-前端 Blazor 比對：
+程式內比對：
 
 ```csharp
-entity.Status == nameof(ErpSyncStatusEnum.NOT_SYNCED)
+order.SyncStatus == ErpSyncStatusEnum.NOT_SYNCED
+```
+
+若欄位因 API / DB boundary 必須是 string，只能在 boundary / mapping / query helper 轉換，不在商業邏輯中手動 `.ToString()` 後比對：
+
+```csharp
+// Good
+queryOptions.AddEqualsEnumIfProvided(
+    value: queryDto.SyncStatus,
+    targetField: order => order.SyncStatus);
+
+// Bad
+order.SyncStatus == ErpSyncStatusEnum.NOT_SYNCED.ToString()
 ```

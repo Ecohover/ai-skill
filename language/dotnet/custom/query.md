@@ -7,13 +7,13 @@
 | MUST | 實例化與分頁配置分兩行撰寫 |
 | MUST | 使用 `Add...IfProvided` 系列方法，配合具名參數 |
 | MUST | Lambda 使用業務語意名稱（`warehouse => warehouse.Code`，非 `x => x.Code`）|
-| MUST | Enum 欄位使用 `AddEqualsEnumIfProvided`，禁止在呼叫端手動 `.ToString()` |
+| MUST | Enum 欄位使用 `AddEqualsEnumIfProvided`，禁止在呼叫端手動 `.ToString()`、`nameof()` 或字串常數比對 |
 
 ```csharp
 var queryOptions = new QueryOptions<Warehouse>();
 queryOptions.ApplyPaging(queryDto);
 queryOptions.AddStartsWithIfProvided(value: queryDto.Code, targetField: warehouse => warehouse.Code);
-queryOptions.AddEqualsIfProvided(value: queryDto.Status, targetField: warehouse => warehouse.Status);
+queryOptions.AddEqualsEnumIfProvided(value: queryDto.Status, targetField: warehouse => warehouse.Status);
 ```
 
 ## 模糊查詢（Searches）

@@ -14,6 +14,7 @@
 - [ ] **Action Route** 是否只放 `query`、`create`、`update`、子資源或特殊流程，沒有重複 Controller 資源名稱或完整 method 名稱？
 - [ ] **ErrorDetail** 有上下文用 `ErrorDetail<TContext>`，無上下文用 `ErrorDetail`，兩者是否正確使用？
 - [ ] **QueryOptions** Lambda 參數是否有業務語意名稱（非 `x`）？
+- [ ] **Enum 比對** 程式內邏輯與查詢條件是否直接用 enum 型別比對，沒有先 `.ToString()` / `nameof()` 轉成 string 比對？
 - [ ] **Enum** 集合欄位是否用 `IEnumerable<EnumType>` 而非 `IEnumerable<string>`？
 - [ ] **Enum 字串值** 進出資料庫、內部服務、自家前端 API 的 Enum member 是否使用全大寫 snake_case，且有序列化機制確保傳輸/儲存為 enum member 名稱字串？外部合作 API 是否依 `core/external-contract.md` 明確標記例外？
 - [ ] **有限條列式字串** 狀態、類型、階段、來源、處理結果等欄位是否有 Enum source，且沒有手寫 magic string？
