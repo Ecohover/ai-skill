@@ -16,7 +16,7 @@
 
 > 例外：環境變數 Enum 不適用本檔 PascalCase 命名規則。環境變數 Enum 成員必須依 `language/dotnet/custom/env.md` 使用全大寫底線命名，並與實際環境變數名稱一致。
 
-> 例外：外部合作 API 的 enum 格式必須依 `core/external-contract.md` 對齊外部合約；若外部 API 不使用全大寫字串，DTO/Router 層可打破本規則，Service 層再轉回內部標準格式。
+> 例外：外部合作 API 的 enum wire format 必須依 `core/external-contract.md` 對齊外部合約；若外部 API 不使用全大寫字串，Boundary 層（DTO/Controller/Adapter）負責轉換，Service 層之後一律回到內部標準全大寫格式。
 
 ## 範例
 
