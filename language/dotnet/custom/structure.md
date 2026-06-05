@@ -17,17 +17,15 @@
 
 | 約束 | 說明 |
 |------|------|
-| MUST | 繼承 `AuditableEntityBase` 或實作 `ISoftDeletable` |
 | MUST | 放在 `/Domain/Entities` 下 |
-| MUST | MongoDB entity 包含 `[BsonCollection("PascalCase")]` 標註 |
-| MUST | 新建實體後呼叫 `entity.InitializeAudit()` |
+| MUST | Entity 只放領域狀態與物件本身可判斷的行為，不直接呼叫外部服務 |
+| MUST | 有限條列式狀態或類型欄位使用 Enum source 定義，不以任意 string 表達 |
+| MUST | 若採用特定 repository / audit 共用套件，套件特規放在 `package/` profile，不寫死在語言層 |
 
 ```csharp
-[BsonCollection("MyEntities")]
-public class MyEntity : AuditableEntityBase, IAggregateRoot
+public class Warehouse
 {
-    [BsonId]
-    public ObjectId Id { get; set; }
+    public required string Id { get; set; }
     public required string Code { get; set; }
     public required string Status { get; set; }
     public string? Remark { get; set; }
@@ -49,10 +47,10 @@ public class MyEntity : AuditableEntityBase, IAggregateRoot
 輸出 DTO 的 Display 屬性（轉中文）定義在 DTO 內，**不進** Shared：
 
 ```csharp
-public string TypeDisplay => Type?.ToLowerInvariant() switch
+public string TypeDisplay => Type switch
 {
-    "main" => "主倉",
-    "branch" => "衛星庫",
+    nameof(WarehouseTypeEnum.MAIN) => "主倉",
+    nameof(WarehouseTypeEnum.BRANCH) => "衛星庫",
     _ => Type ?? string.Empty
 };
 ```
@@ -109,9 +107,11 @@ public class WarehouseController(IWarehouseService _warehouseService) : Controll
 {
     [HttpPost("query")]
     [ProducesResponseType<PageResultDto<OutWarehouseDto>>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> QueryAsync(InQueryWarehouseDto queryDto)
+    public async Task<IActionResult> QueryAsync(
+        InQueryWarehouseDto queryDto,
+        CancellationToken cancellationToken)
     {
-        var result = await _warehouseService.QueryAsync(queryDto, default);
+        var result = await _warehouseService.QueryAsync(queryDto, cancellationToken);
         return Ok(result);
     }
 }
@@ -134,20 +134,20 @@ public class WarehouseController(IWarehouseService _warehouseService) : Controll
 ```csharp
 public partial class WarehouseService(
     ILogger<WarehouseService> _logger,
-    IFullRepository<Warehouse> _repository) : IWarehouseService
+    IWarehouseRepository _warehouseRepository) : IWarehouseService
 {
     public async Task UpdateWarehouseAsync(
         InUpdateWarehouseDto updateDto, CancellationToken cancellationToken = default)
     {
-        var warehouse = await _repository.FindOneAsync(
-            entity => entity.Id == ObjectId.Parse(updateDto.Id), cancellationToken);
+        var warehouse = await _warehouseRepository.FindByIdAsync(
+            updateDto.Id, cancellationToken);
         if (warehouse is null)
         {
             throw AppError.EntityNotFound.Exception();
         }
 
         MasterDataFactory.UpdateEntity(warehouse, updateDto);
-        await _repository.UpdateAsync(warehouse, cancellationToken);
+        await _warehouseRepository.UpdateAsync(warehouse, cancellationToken);
     }
 }
 ```

@@ -22,6 +22,9 @@
 ## MongoRepository
 
 - 採用 `{Project}.MongoRepository` 的 entity 使用 `[UseRepository]` 標註 repository 型別。
+- MongoDB entity 包含 `[BsonCollection("PascalCase")]` 標註。
+- Entity 可依專案資料生命週期繼承 `AuditableEntityBase`、`AuditBase` 或實作 `ISoftDeletable`。
+- 新建 entity 後，若 entity 採用共用套件 audit 欄位，需呼叫 `entity.InitializeAudit()`。
 - 不採用 `{Project}.MongoRepository` 的專案，不套用 `[UseRepository]` 規則。
 
 ```csharp

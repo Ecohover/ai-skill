@@ -5,6 +5,8 @@
 | 約束 | 說明 |
 |------|------|
 | MUST | 分類欄位使用 Enum 定義 |
+| MUST | 有限條列式字串欄位必須使用 Enum source 定義，例如狀態、類型、階段、來源、處理結果 |
+| MUST NOT | 對有限條列式值直接手寫 magic string；應使用 `nameof(SomeEnum.SOME_VALUE)`、converter、factory 或明確 mapping 產生 |
 | MUST | Enum type 使用 PascalCase，可依專案既有慣例使用 `Enum` 後綴（如 `ErpSyncStatusEnum`）|
 | MUST | Enum member 使用全大寫 snake_case，單字之間用底線（如 `NOT_SYNCED`、`SENT_TO_ERP_SUCCESS`）|
 | MUST | API / DB / 內部服務看到 enum 字串時，必須能明確辨識這是受控 enum 值，而不是任意 string |
@@ -38,10 +40,10 @@ Entity / DTO 欄位：
 
 ```csharp
 // 純量：用 string，資料庫、內部服務、自家前端 API 進出由序列化層保存 enum member 名稱
-public required string Status { get; set; }
+public required string Status { get; set; } = nameof(ErpSyncStatusEnum.NOT_SYNCED);
 
 // 集合：用 Enum 集合
-public IEnumerable<TempZone> TempZones { get; set; } = [];
+public IEnumerable<TempZoneEnum> TempZones { get; set; } = [];
 ```
 
 前端 Blazor 比對：

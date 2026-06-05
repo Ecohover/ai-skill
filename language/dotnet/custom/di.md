@@ -16,7 +16,7 @@
 public partial class WarehouseService(
     ILogger<WarehouseService> _logger,
     IEventPublisher _eventPublisher,
-    IFullRepository<Warehouse> _warehouseRepository,
+    IWarehouseRepository _warehouseRepository,
     IProductService _productService) : IWarehouseService
 {
 }
@@ -30,11 +30,11 @@ public partial class WarehouseService(
 public class WarehouseService : IWarehouseService
 {
     private readonly ILogger<WarehouseService> _logger;
-    private readonly IFullRepository<Warehouse> _warehouseRepository;
+    private readonly IWarehouseRepository _warehouseRepository;
 
     public WarehouseService(
         ILogger<WarehouseService> logger,
-        IFullRepository<Warehouse> warehouseRepository)
+        IWarehouseRepository warehouseRepository)
     {
         _logger = logger;
         _warehouseRepository = warehouseRepository;
@@ -58,7 +58,7 @@ public class WarehouseService : IWarehouseService
 ```csharp
 public class WarehouseService
 {
-    public IFullRepository<Warehouse> Repository { get; set; } = default!;
+    public IWarehouseRepository Repository { get; set; } = default!;
 }
 ```
 
@@ -69,7 +69,7 @@ public class WarehouseService
 ```csharp
 public async Task UpdateAsync(string id)
 {
-    var repository = _serviceProvider.GetRequiredService<IFullRepository<Warehouse>>();
+    var repository = _serviceProvider.GetRequiredService<IWarehouseRepository>();
 }
 ```
 

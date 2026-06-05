@@ -86,7 +86,7 @@ export interface ApiResult<T> {
 
 | 約束 | 說明 |
 |------|------|
-| MUST | 自家前端 API 傳輸的 Enum 值為**全大寫字串**（如 `"ACTIVE"`、`"ROOMTEM"`）|
+| MUST | 自家前端 API 傳輸的 Enum 值為**全大寫 snake_case 字串**（如 `"ACTIVE"`、`"ROOMTEM"`、`"SENT_TO_ERP_SUCCESS"`）|
 | MUST | 前端比對或賦值使用 `.toUpperCase()` 或 `nameof` 轉大寫 |
 | MUST NOT | 用數字表示 Enum 值 |
 

@@ -113,7 +113,7 @@ Batch A1
   - partial service
   - `*.Logging.cs` + `[LoggerMessage]`
   - `.IfPresent()` / `.IfNotNull()`
-  - `InitializeAudit()`
+  - 採用共用套件 audit 欄位時呼叫 `InitializeAudit()`
 - Python:
   - FastAPI router 僅處理 request/response
   - custom exception + exception_handler

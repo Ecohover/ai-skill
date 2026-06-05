@@ -25,5 +25,5 @@ public partial class WarehouseService
 
 ```csharp
 // WarehouseService.cs — 呼叫端
-LogWarehouseCreated(logger, warehouse.Code);
+LogWarehouseCreated(_logger, warehouse.Code);
 ```
