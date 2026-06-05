@@ -6,9 +6,9 @@
 |------|------|
 | MUST | 分類欄位使用 Enum 定義 |
 | MUST | 成員使用 PascalCase，禁止使用底線（`HalfH` 而非 `Half_H`）|
-| MUST | 需要全大寫序列化的 Enum 加上 `[UpperCaseEnum]` attribute |
+| MUST | 會進出資料庫、內部服務或自家前端 API 的 Enum 加上 `[UpperCaseEnum]` attribute |
 | MUST | 加上 `[UpperCaseEnum]` 後，JSON（API）與 BSON（MongoDB）自動序列化為全大寫字串 |
-| MUST | API 進出服務與資料庫進出時，Enum 值一律轉為全大寫字串 |
+| MUST | 資料庫進出、內部服務傳遞、自家前端溝通時，Enum 值一律使用全大寫字串 |
 | MUST | 純量 Enum 欄位（Entity & DTO）傳輸與儲存使用 string，由序列化層自動轉換 |
 | MUST | 集合型 Enum 欄位使用 Enum 集合（`IEnumerable<TempZone>`），不使用 `IEnumerable<string>` |
 | MUST NOT | 用 int 表示 Enum 值 |
@@ -31,7 +31,7 @@ public enum OrderStatus { Active, Inactive, Pending, Completed }
 Entity / DTO 欄位：
 
 ```csharp
-// 純量：用 string，API 與資料庫進出由序列化層自動轉全大寫
+// 純量：用 string，資料庫、內部服務、自家前端 API 進出由序列化層自動轉全大寫
 public required string Status { get; set; }
 
 // 集合：用 Enum 集合

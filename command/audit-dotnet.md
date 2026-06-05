@@ -14,7 +14,7 @@
 - [ ] **ErrorDetail** 有上下文用 `ErrorDetail<TContext>`，無上下文用 `ErrorDetail`，兩者是否正確使用？
 - [ ] **QueryOptions** Lambda 參數是否有業務語意名稱（非 `x`）？
 - [ ] **Enum** 集合欄位是否用 `IEnumerable<EnumType>` 而非 `IEnumerable<string>`？
-- [ ] **Enum 大寫轉換** API 進出服務與資料庫進出是否都轉為全大寫字串？外部合作 API 是否依 `core/external-contract.md` 明確標記例外？
+- [ ] **Enum 大寫轉換** 進出資料庫、內部服務、自家前端 API 的 Enum 是否加上 `[UpperCaseEnum]` 並轉為全大寫字串？外部合作 API 是否依 `core/external-contract.md` 明確標記例外？
 - [ ] **一檔一 Class** 每個 `.cs` 檔案是否只定義一個主要 class / record / struct / interface / enum？
 - [ ] **資料夾檔案數** 新增檔案後同資料夾是否超過 10 個檔案？若超過，是否已先詢問使用者確認分層方式？
 - [ ] **集合屬性** 是否用 `ICollection<T>` + `init;`（非 `List<T>` + `set;`）？
