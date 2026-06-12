@@ -23,6 +23,7 @@
 - [ ] **測試** 高風險變更是否依風險導向 TDD 補測試，測試是否使用 Arrange / Act / Assert 並驗證行為？
 - [ ] **一檔一 Class** 每個 `.cs` 檔案是否只定義一個主要 class / record / struct / interface / enum？
 - [ ] **資料夾檔案數** 新增檔案後同資料夾是否超過 10 個檔案？若超過，是否已先詢問使用者確認分層方式？
+- [ ] **控制流程可讀性** builder / update definition / query definition / mapper 等複合建構是否避免 inline return 與多行 ternary，改用明確區域變數、`if/else` 賦值、最後統一 return？
 - [ ] **集合屬性** 是否用 `ICollection<T>` + `init;`（非 `List<T>` + `set;`）？
 - [ ] **if/for/foreach** 是否都加了 `{}`？
 - [ ] **環境變數** 是否透過 Enum + `.GetEnvironmentValue()`（非 `Environment.GetEnvironmentVariable()`）？

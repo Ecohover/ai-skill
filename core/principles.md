@@ -22,6 +22,14 @@
 | PREFER | 方法長度 50 行以內，最多 2-3 層嵌套 |
 | PREFER | 不同方法/成員之間保留一行空行，禁止多餘連續空行 |
 
+## AI 協作可讀性
+
+| 約束 | 說明 |
+|------|------|
+| MUST | 程式碼優先讓人類容易檢核，不以「寫得短」或「語法糖多」作為品質目標 |
+| PREFER | 條件分支、狀態轉換、資料組裝、builder/factory/query/update definition 等邏輯使用直白流程、中間變數與明確 `if` / `else` |
+| MUST NOT | 為了縮短行數使用多行 ternary、巢狀 fluent chain、inline return 複合建構式，導致讀者需要反推執行流程 |
+
 ## 命名
 
 | 約束 | 說明 |

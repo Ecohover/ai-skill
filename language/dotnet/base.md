@@ -13,6 +13,31 @@
 
 > 例外：小型 private nested type 可保留在所屬 class 內；若型別會被其他檔案引用，必須獨立成檔。
 
+## 控制流程與回傳可讀性
+
+| 約束 | 說明 |
+|------|------|
+| PREFER | 條件分支產生不同物件、builder、update definition、query definition 時，先宣告語意明確的區域變數，使用一般 `if` / `else` 賦值，最後統一 `return` |
+| MUST NOT | 在分支邏輯中直接 inline `return Builders...` / `return Query...` / `return mapper...` 等複合建構式，導致流程不直覺 |
+| MUST NOT | 使用 ternary 包住多行 builder / factory / mapper 呼叫 |
+
+```csharp
+UpdateDefinition<SalesOrder> update;
+
+if (status == TmsStatusEnum.DELIVERED)
+{
+    update = Builders<SalesOrder>.Update.Combine(
+        Builders<SalesOrder>.Update.Set(order => order.TmsStatus, status),
+        Builders<SalesOrder>.Update.Set(order => order.Status, OrderStatusEnum.COMPLETED));
+}
+else
+{
+    update = Builders<SalesOrder>.Update.Set(order => order.TmsStatus, status);
+}
+
+return update;
+```
+
 ## 集合與封裝（CA1002/CA2227）
 
 | 約束 | 說明 |

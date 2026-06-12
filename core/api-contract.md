@@ -32,6 +32,8 @@
 
 ### 請求（後端 DTO 欄位）
 
+後端清單查詢 DTO 必須繼承 `DachanApiQueryRequest`，不可在各服務自建分頁 request 型別。
+
 | 欄位 | 型別 | 說明 |
 |------|------|------|
 | `page` | `number` | 目前頁碼（從 1 開始）|
@@ -41,7 +43,7 @@
 
 | 欄位 | 型別 | 說明 |
 |------|------|------|
-| `items` | `T[]` | 當頁資料 |
+| `list` | `T[]` | 當頁資料 |
 | `totalCount` | `number` | 總筆數 |
 | `pageNumber` | `number` | 目前頁碼 |
 | `pageSize` | `number` | 每頁筆數 |
@@ -49,8 +51,8 @@
 ### 前端 TypeScript 型別（來自共用套件）
 
 ```ts
-export interface PageResult<T> {
-  items: T[]
+export interface PagedResult<T> {
+  list: T[]
   totalCount: number
   pageNumber: number
   pageSize: number
@@ -63,6 +65,10 @@ export interface ApiResult<T> {
   message: string | null
 }
 ```
+
+前端 API module 必須回傳完整 `ApiResult<T>`，由 view/composable 從 `result.data` 取資料；清單資料從 `result.data.list` 取值。不得在 API module 內自行 unwrap 成裸資料。
+
+`ApiResult.statusCode` 僅作為後端 envelope 診斷資訊，可能因後端 enum serializer 呈現為文字（如 `"OK"`）。前端不得用 `ApiResult.statusCode` 判斷 HTTP 狀態；HTTP flow control 必須使用原生 HTTP response status（例如 shared API client 拋出的 `error.status` / `error.response.status`），業務成功失敗以 `success`、`errorCode`、`message` 判斷。
 
 ## 模糊查詢（Searches）
 
