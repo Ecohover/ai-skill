@@ -20,6 +20,7 @@ core/agent-mandates.md      ← 必讀
 core/principles.md          ← 必讀
 core/api-contract.md        ← 涉及 API 時讀取
 core/api-routing.md         ← 涉及 API route / HTTP verb 時讀取
+core/api-http-status-code.md ← 涉及 API 狀態碼時讀取
 core/external-contract.md   ← 涉及第三方時讀取
 package/[共用套件]/*.md      ← 計畫指定或專案採用共用套件時讀取
 unit/[開發單位]/*.md        ← 計畫指定或專案採用開發單位 profile 時讀取
@@ -33,6 +34,7 @@ core/agent-mandates.md      ← 必讀
 core/principles.md          ← 必讀
 core/api-contract.md        ← 涉及 API 時讀取
 core/api-routing.md         ← 涉及 API route / HTTP verb 時讀取
+core/api-http-status-code.md ← 涉及 API 狀態碼時讀取
 core/external-contract.md   ← 涉及第三方時讀取
 package/[共用套件]/*.md      ← 任務涉及共用套件時讀取
 unit/[開發單位]/*.md        ← 任務涉及開發單位 profile 時讀取
@@ -55,6 +57,7 @@ language/[語言]/custom/[模組].md ← audit 無法判定或疑似 fail 時再
 ### 3. 合約一致性
 - API 回應格式是否符合 `core/api-contract.md`？
 - API route / HTTP verb 是否符合 `core/api-routing.md`？
+- API 狀態碼是否符合 `core/api-http-status-code.md`？
 - 涉及第三方時是否符合 `core/external-contract.md`？
 
 ### 4. 測試與驗證
