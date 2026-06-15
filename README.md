@@ -12,11 +12,14 @@ AI agent 的啟動入口是 `SKILL.md`；實際角色路由與載入順序由 `A
 
 ### 1. 安裝到專案
 
-各專案透過 git submodule 連結：
+目前各專案已棄用 git submodule，開發者把 dachan.vibecode.prompttool repo clone 到本機與其他專案路徑同層級，
+各專案使用 AI 時再指定路徑讀取 SKILL.md。
 
-```bash
-git submodule add <repo-url> .prompts
-```
+~~各專案透過 git submodule 連結：~~
+
+~~```bash~~~
+~~git submodule add <repo-url> .prompts~~
+~~```~~
 
 在使用專案的 AI 設定檔頂部加入：
 
