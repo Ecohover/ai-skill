@@ -27,6 +27,34 @@ description: Use when an AI agent works with this prompt rule pack, needs Planne
 - 外部依賴必須以 mock、fake、in-memory test double、mock `HttpMessageHandler` 或 in-memory `TestServer` 隔離。
 - 需要真實 API 或資料庫的測試必須歸類為 integration test，不得混在一般 unit test 流程。
 
+## 排程同步與 Audit 任務必讀
+
+當任務涉及排程同步、ERP 同步、主檔同步或 audit log 時，必須載入 `package/common-utils/audit-log.md`。尤其要注意：客戶主檔與商品主檔若外部來源管理欄位沒有實際異動，不得呼叫 repository update / patch 造成沒有業務變更的 audit log；可在 sync run processing records 記 `SKIPPED`。
+
+## 服務間 API Key 與共用回應任務必讀
+
+當任務涉及 OMS、TMS Adapter、Scheduler、Invoice 或其他服務間 API 呼叫、shared secret、internal/external API key、CommonUtils response middleware、`DachanApiResponse`、`ApiResult`、或 API response envelope 時，必須載入：
+
+- `package/common-utils/api-key.md`
+- `package/common-utils/api-response.md`
+- `core/api-contract.md`
+- `core/external-contract.md`（若涉及 Invoice、SAP、金財通或其他外部 / 既有合約）
+
+尤其要注意：CommonUtils 不定義服務名稱；各服務自行定義 allow attribute 與 service constants。OMS 內部品項使用 `ItemCode` / `ItemName`；Invoice 或其他 boundary 合約若使用 `ProductNo` / `ProductName`，不得未盤點就直接改名。
+
+## Enum Metadata 任務必讀
+
+當任務涉及後端 enum option、`I18nKeyEnum`、`Enum/options`、前端 enum 下拉或 enum metadata 時，必須載入 `language/dotnet/custom/enum.md` 與 `core/api-contract.md`。尤其要注意 enum metadata 的隱性反射機制：
+
+- enum option 只暴露掛 `[I18nKeyEnum]` 的 enum。
+- `metadata` 只由 enum value attribute 中掛 `[EnumMetadataField("metadataKey")]` 的 public property 輸出。
+- enum value 上的業務設定 attribute 必須使用 named argument，例如 `[OrderSetting(printDescription: "...")]`、`[ErpSetting(erpDocType: "...")]`，避免位置參數隱藏語意。
+- enum metadata service 不得 hardcode 特定業務欄位，例如 ERP key。
+- 沒有 metadata attribute 的 enum value，`metadata` 應為空物件，不得補領域預設值。
+- 若 attribute 只供後端內部使用，不要在 property 掛 `[EnumMetadataField]`；例如訂單列印描述不應混入 ERP metadata。
+- 多個 attribute 輸出同名 metadata key 時，服務啟動應失敗。
+- enum metadata 通常在服務啟動時組合並快取；新增 attribute 或 metadata key 時仍須補單元測試確認 response shape。
+
 ## 目錄對照
 
 - `AGENT.md`：通用路由入口與真理來源。

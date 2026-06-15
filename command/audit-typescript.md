@@ -5,7 +5,9 @@
 - [ ] **型別安全** 是否完全避開 `any`？API 回傳是否有對應 interface？
 - [ ] **命名** Vue SFC 檔名是否 PascalCase？Composable 是否以 `use` 開頭？
 - [ ] **環境變數** 是否透過 `import.meta.env.VITE_*`，而非 hardcode URL？
+- [ ] **Runtime config** 是否依 app scope 優先讀取對應設定，且 dev path / base path 不會跳到正式區？
 - [ ] **API 模組** 新增的 API 呼叫是否放在 `composables/api/modules/` 下？
+- [ ] **Scoped token** 多服務 token 是否分開保存，沒有用 Portal token 呼叫 OMS/Scheduler 或用 Scheduler token 覆蓋 OMS token？
 - [ ] **路由** 新 View 是否已加入 router，並使用 `() => import(...)` lazy load？
 - [ ] **路由路徑** 是否包含 `/{app}/` 前綴？（必須沒有，base 已設定）
 - [ ] **Shared 優先** `ApiResult`、`PageResult` 是否從共用套件引入？（如 `@{project}/shared`）

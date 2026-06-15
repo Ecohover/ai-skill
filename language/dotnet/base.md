@@ -49,6 +49,16 @@ return update;
 public ICollection<OrderDetail> Details { get; init; } = new List<OrderDetail>();
 ```
 
+## 大型 Payload
+
+| 約束 | 說明 |
+|------|------|
+| MUST | MB 等級 request / response 原文拆到 payload storage |
+| MUST | 列表查詢與一般明細初始化使用 projection / summary DTO，避免讀出大型 payload |
+| MUST | 前端只在使用者展開 request / response 區塊時 lazy-load payload |
+| MUST NOT | 各服務自行重複實作 GZip 壓縮工具；採用 CommonUtils 類共用套件時應使用共用 payload helper |
+| MUST NOT | 前端直接處理 Mongo binary、GZip 或資料庫內部壓縮格式 |
+
 ## 充血模型
 
 | 約束 | 說明 |

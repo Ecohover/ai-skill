@@ -9,7 +9,7 @@
 | 套件類型 | 用途 |
 |----------|------|
 | `{Project}.CommonUtils` | 環境變數、擴充方法 |
-| `{Project}.CommonUtils.Web` | API response middleware、HttpClientProxy |
+| `{Project}.CommonUtils.Web` | API response middleware、Dachan API key filter、HttpClientProxy |
 | `{Project}.Common.EventDriven` | 異步領域事件、RabbitMQ 訊息整合 |
 | `{Project}.MongoRepository` | 資料存取，自動掃描 `[UseRepository]` |
 
@@ -37,6 +37,23 @@ public class MyEntity : AuditableEntityBase, IAggregateRoot
 }
 ```
 
+## Compressed Payload Storage
+
+- 大型 request / response 原文應拆到獨立 payload collection，不直接放在列表或一般明細 DTO。
+- 壓縮 / 解壓縮使用 `{Project}.CommonUtils` 的 payload compression helper，不在各服務自行實作 GZip。
+- Mongo payload 文件應繼承 `{Project}.MongoRepository` 的 compressed payload base，並由各服務自行指定 `[BsonCollection]`。
+- 各服務可在 payload 文件上補自己的查詢欄位，例如 Scheduler 的 `StepCode`；CommonUtils 不定義業務查詢語意。
+- Payload API 由後端解壓後回傳 JSON / text，前端不得直接處理 Mongo binary 或 GZip。
+
+```csharp
+[BsonCollection("MyRunPayloads")]
+[UseRepository(typeof(FullRepository<>))]
+public class MyRunPayload : CompressedPayloadDocumentBase, IAggregateRoot
+{
+    public string StepCode { get; set; } = string.Empty;
+}
+```
+
 ## 服務啟動設定
 
 ```csharp
@@ -44,3 +61,10 @@ builder.Services.AddCommonUtils();
 builder.Services.AddMongoDB(typeof(Program).Assembly);
 app.UseProjectMiddlewares();
 ```
+
+## 服務間 API 驗證
+
+- 服務間 API key 使用 `package/common-utils/api-key.md`。
+- CommonUtils 只提供 header 常數、key type enum、requirement attribute 與 authorize filter。
+- 各服務自行定義 service name 常數、secret global settings 與 allow attribute。
+- 不新增舊式 shared secret header 或每個服務自製驗證 filter。

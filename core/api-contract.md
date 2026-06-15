@@ -70,6 +70,20 @@ export interface ApiResult<T> {
 
 `ApiResult.statusCode` 僅作為後端 envelope 診斷資訊，可能因後端 enum serializer 呈現為文字（如 `"OK"`）。前端不得用 `ApiResult.statusCode` 判斷 HTTP 狀態；HTTP flow control 必須使用原生 HTTP response status（例如 shared API client 拋出的 `error.status` / `error.response.status`），業務成功失敗以 `success`、`errorCode`、`message` 判斷。
 
+## 大型 Payload 與原始內容
+
+列表 API 與一般明細 API 不得預設回傳 MB 等級原始內容，例如完整 `RequestJson`、`ResponseJson`、外部 API 原文、匯入檔案內容、完整 step response 或大型 audit trail。
+
+| 約束 | 說明 |
+|------|------|
+| MUST | 列表 API 回傳 summary DTO，只包含列表顯示、排序、篩選與連結所需欄位 |
+| MUST | 大型原始內容使用獨立 payload endpoint 延遲載入，例如 `GET /{resource}/{id}/payloads/response` |
+| MUST | 主文件只保存 payload metadata，例如 `PayloadId`、`Bytes`、`ContentType`、`Compression`、`HasPayload` |
+| MUST | 後端可將 payload 以 GZip 等格式壓縮存放於獨立 collection / storage，但 API 回傳給前端時應是已解壓的標準 JSON 或文字 |
+| MUST | HTTP 傳輸壓縮交給 Web server / middleware / ingress 的 gzip 或 br；這與 DB 內部壓縮是兩件事 |
+| MUST NOT | 讓前端直接處理資料庫壓縮格式或 Mongo binary payload |
+| MUST NOT | 為了保存壓縮內容，把 binary 轉 base64 後塞回主文件的大字串欄位 |
+
 ## 模糊查詢（Searches）
 
 欄位型模糊搜尋統一用 `searches` 陣列傳遞，格式為 `"FieldName:value"`，條件之間 AND 連接：
@@ -97,6 +111,52 @@ export interface ApiResult<T> {
 | MUST NOT | 用數字表示 Enum 值 |
 
 > 外部合作 API 例外：Mock 或對接外部 API 時，Enum 格式以 `core/external-contract.md` 的外部合約為準；內部 Service 層再轉回專案標準全大寫格式。
+
+## Enum Metadata API
+
+後端提供給前端下拉、篩選或狀態顯示使用的 enum option 必須透過標準 enum metadata API 回傳完整 `ApiResult<Record<string, EnumOption[]>>`，不得在前端 hardcode 同一份選項。
+
+| 約束 | 說明 |
+|------|------|
+| MUST | API 回傳 `value`, `i18nKey`, `description`, `metadata`，並由標準 response middleware 包裝 |
+| MUST | `metadata` 只能由 enum value 上 attribute 的 `[EnumMetadataField("metadataKey")]` property 宣告產生 |
+| MUST | enum value 上的業務設定 attribute 使用 named argument，例如 `[OrderSetting(printDescription: "...")]`、`[ErpSetting(erpDocType: "...")]`，避免位置參數隱藏語意 |
+| MUST NOT | enum metadata service 內不得 hardcode 特定業務欄位，例如 ERP 相關 key |
+| MUST NOT | 沒有 metadata attribute 的 enum value 不得補領域特定預設值 |
+| MUST | 若多個 attribute 輸出同名 metadata key，服務啟動時必須失敗 |
+
+Enum metadata 通常在服務啟動時組合並快取，反射不在 request path；但新增 metadata attribute 仍需測試 response shape。
+
+## Auth / Permission Contract
+
+採用 Portal + CommonUtils auth 的系統，Token 與 UserInfo 欄位命名需一致：
+
+| 約束 | 說明 |
+|------|------|
+| MUST | 使用 `userId` 表示 Portal 使用者 ObjectId |
+| MUST | `sub` 若需放使用者識別，應與 `userId` 一致 |
+| MUST | 員工編號使用 `employeeCode` |
+| MUST | 權限 claim / response 欄位使用 `permissions` |
+| MUST NOT | 新 token 發出 `mongo_id`、`employee_id`、`AD`、`permission` 等舊或混淆命名 |
+
+服務代碼使用清楚的大寫名稱，例如 `PORTAL`、`OMS`、`WMS`、`TMS`、`IMS`、`SCHEDULER`，不得再用 `SCH` 這類不易辨識縮寫。
+
+權限 grant 使用四段格式：
+
+```text
+{SERVICE}::{RESOURCE}::{GRANT_TYPE}::{VALUE}
+```
+
+範例：
+
+```text
+OMS::ORDER::ACTION::CREATE
+OMS::ORDER::COMPANY::QAS0
+OMS::*::*::*
+SCHEDULER::*::*::*
+```
+
+多權限不得以逗號塞在同一字串，需展開為多筆 grant。
 
 ## 錯誤碼格式
 

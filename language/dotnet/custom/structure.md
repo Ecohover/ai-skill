@@ -55,6 +55,7 @@ public string TypeDisplay => Type switch
 | MUST NOT | 在 path 重複 Controller 資源名稱或完整 method 名稱 |
 | MUST | 僅處理 Request/Response，不含商業邏輯 |
 | MUST NOT | 手動封裝 API response wrapper / `ApiResult` / 自訂 wrapper（由專案標準 middleware 統一處理）|
+| MUST NOT | 直接從 `ClaimsPrincipal` 讀取目前使用者 id / name / permissions；採用 CommonUtils 類套件時應使用 `RequestContext.UserInfo` |
 
 路由命名、HTTP Verb 與 Controller 範例依 `language/dotnet/custom/routing.md`。
 
@@ -112,3 +113,23 @@ public static void UpdateEntity(Warehouse entity, InUpdateWarehouseDto dto)
     dto.TempZones.IfNotNull(value => entity.TempZones = value);
 }
 ```
+
+## 列表 / 明細 DTO 邊界
+
+列表 DTO 只包含列表頁需要的摘要欄位。大型集合、完整執行明細、完整 request / response body、audit trail、step results 等只應由 detail API 回傳。
+
+若 entity 內含大型集合，repository 查詢列表時應用 projection 或專用 query DTO，避免整份 entity 載入後再由 factory 丟棄欄位。
+
+## 大型 Payload 儲存與讀取
+
+完整 request / response body、外部 API 原文、step response 等 MB 等級內容，不應直接留在 root entity 或 run document。
+
+| 約束 | 說明 |
+|------|------|
+| MUST | Root document 只保存 payload id、大小、content type、compression、has payload 等 metadata |
+| MUST | 原始內容放在獨立 payload entity / collection / storage，例如 `{Domain}Payloads` |
+| MUST | Payload 可用 GZip binary 儲存；讀取 API 由後端解壓後回傳正常 JSON 或文字 |
+| MUST | 新增明確 payload API，例如 `GET /{resource}/{id}/payloads/response` 或 step-level payload API |
+| MUST | 清單 query 以 projection 排除 payload 與大型集合，不得先查完整 entity 再丟掉 |
+| SHOULD | 舊資料 migration 需可重複執行，先 dry-run 輸出筆數與 bytes，再 apply 並驗證 inline payload 已清空 |
+| MUST NOT | 讓前端自行解壓 DB 儲存格式，或把壓縮 binary base64 後塞回主要文件 |

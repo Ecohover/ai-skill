@@ -19,6 +19,11 @@
 | MUST | 集合型 Enum 欄位使用 Enum 集合（`IEnumerable<TempZone>`），不使用 `IEnumerable<string>` |
 | MUST NOT | 用 int 表示 Enum 值 |
 | MUST NOT | Enum 命名加 `In`/`Out` 前綴（`TempZone` 而非 `InTempZone`）|
+| MUST | 需要提供給前端的 enum option，enum type 必須掛專案的 `[I18nKeyEnum]` 類 marker，並透過標準 enum metadata API 輸出 |
+| MUST | enum metadata 額外欄位必須透過 attribute property 上的 `[EnumMetadataField("metadataKey")]` 宣告，不得在 metadata service 內針對特定業務 hardcode |
+| MUST | enum value 上的業務設定 attribute 必須使用 named argument，例如 `[OrderSetting(printDescription: "...")]`、`[ErpSetting(erpDocType: "...")]`，不得使用只有位置語意的寫法 |
+| MUST NOT | 沒有 metadata attribute 的 enum value 不得補領域預設值 |
+| MUST | 多個 metadata attribute 輸出同名 key 時必須啟動失敗，避免前端接收不穩定資料 |
 
 > 補充：環境變數 Enum 同樣使用全大寫底線命名，且必須依 `language/dotnet/custom/env.md` 與實際環境變數名稱一致。
 
@@ -65,3 +70,33 @@ queryOptions.AddEqualsEnumIfProvided(
 order.SyncStatus == ErpSyncStatusEnum.NOT_SYNCED.ToString()
 order.SyncStatus == nameof(ErpSyncStatusEnum.NOT_SYNCED)
 ```
+
+## Enum Metadata
+
+Enum metadata API 只在服務啟動時組合一次並快取，因此可以使用反射，但反射規則必須清楚宣告：
+
+```csharp
+public class ErpSettingAttribute : Attribute
+{
+    [EnumMetadataField("erpDocType")]
+    public string ErpDocType { get; }
+}
+
+public class OrderSettingAttribute : Attribute
+{
+    public string PrintDescription { get; }
+}
+```
+
+Enum value 上使用這類 attribute 時必須寫出參數名稱，讓語意留在呼叫點：
+
+```csharp
+[OrderSetting(printDescription: "出貨單")]
+[ErpSetting(erpDocType: "ZOR2")]
+STANDARD,
+
+[OrderSetting(printDescription: "")]
+SERVICE
+```
+
+只有掛 `[EnumMetadataField]` 的 public property 會被輸出到前端 `metadata`。新增 metadata 類型時，新增 attribute 並標記要暴露的 property；不要修改 enum metadata service 追加業務判斷。若 attribute 只供後端內部使用，例如訂單列印描述，property 不要掛 `[EnumMetadataField]`。

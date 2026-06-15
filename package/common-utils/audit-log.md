@@ -30,6 +30,12 @@
 - 若紀錄性資料本身需要被修改或重打，仍可使用一般 audit 欄位或 audit log 記錄修改行為。
 - 執行紀錄不應重複保存完整 OldValue / NewValue；異動明細應透過 `AuditRecordId`、目標 entity id 或其他關聯欄位連回 audit log。
 
+## 排程同步與 Audit
+
+- 排程或 ERP 同步處理主檔時，必須先比對外部來源管理欄位是否真的異動。
+- 若客戶主檔或商品主檔的 SAP / ERP 管理欄位完全相同，不得呼叫 repository `UpdateAsync` / `PatchAsync` 寫回 entity，避免產生沒有業務變更的 audit log。
+- 未異動資料可在 sync run processing records 中記 `SKIPPED`，但 entity audit log 只應記錄真正新增或異動的資料。
+
 ```csharp
 [AuditLogRetention(20)]
 [BsonCollection("OutboundOrders")]
