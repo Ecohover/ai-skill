@@ -4,7 +4,7 @@
 
 ## 1. 安全與系統完整性 (Security & Integrity)
 - **憑證保護**：嚴禁記錄、列印或提交任何祕鑰、API Key 或敏感資訊。保護 `.env`、`.git` 及系統配置。
-- **原始碼控制**：AI 完成動作並完成必要驗證後，可以先執行 `git add` 與 `git commit`；commit 訊息與提交說明使用繁體中文。除非使用者明確要求推送，否則不得執行 `git push`。
+- **原始碼控制**：AI 完成動作並完成必要驗證後，可以先執行 `git add` 與 `git commit`；commit 訊息與提交說明使用繁體中文。commit 前必須先執行 `git fetch origin dev` 檢查 `origin/dev` 是否有本地尚未包含的新提交；若有，必須先 rebase 到最新 `origin/dev` 後再 commit。若 rebase 發生衝突，停止並回報使用者，不得自行略過或強制覆蓋。除非使用者明確要求推送，否則不得執行 `git push`。
 
 ## 2. 上下文效率 (Context Efficiency)
 - **減少消耗**：精確使用工具，避免讀取不必要的大型檔案。

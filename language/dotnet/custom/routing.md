@@ -2,7 +2,9 @@
 
 ## API 路徑命名
 
-Controller 名稱代表資源名稱，例如 `SalesOrderController` 對應 `/api/SalesOrder`。Action route 不得重複 Controller 資源名稱，也不得使用完整 method 名稱。
+Controller 名稱代表資源名稱，例如 `SalesOrderController` 對應 `/SalesOrder`。Action route 不得重複 Controller 資源名稱，也不得使用完整 method 名稱。
+
+`api` 前綴由 K8s/Ingress 統一處理，Controller route 不包含 `api/`。
 
 | 情境 | Route 命名 |
 |------|------------|
@@ -26,28 +28,28 @@ Controller 名稱代表資源名稱，例如 `SalesOrderController` 對應 `/api
 ## 範例
 
 ```text
-POST  /api/SalesOrder/query
-GET   /api/SalesOrder/{salesOrderId}/product-prices
-POST  /api/SalesOrder/product-prices/query
-PATCH /api/SalesOrder/update
-PATCH /api/SalesOrder/status/update
-PATCH /api/SalesOrder/status/update-batch
-PATCH /api/SalesOrder/items/update
-POST  /api/SalesOrder/erp/forward
-POST  /api/SalesOrder/erp/forward-batch
-POST  /api/SalesOrder/erp/cancel
-POST  /api/SalesOrder/erp/cancel-batch
-POST  /api/SalesOrder/erp/sync
-POST  /api/SalesOrder/lock
-POST  /api/SalesOrder/unlock
-GET   /api/SalesOrder/shipment-pdf
+POST  /SalesOrder/query
+GET   /SalesOrder/{salesOrderId}/product-prices
+POST  /SalesOrder/product-prices/query
+PATCH /SalesOrder/update
+PATCH /SalesOrder/status/update
+PATCH /SalesOrder/status/update-batch
+PATCH /SalesOrder/items/update
+POST  /SalesOrder/erp/forward
+POST  /SalesOrder/erp/forward-batch
+POST  /SalesOrder/erp/cancel
+POST  /SalesOrder/erp/cancel-batch
+POST  /SalesOrder/erp/sync
+POST  /SalesOrder/lock
+POST  /SalesOrder/unlock
+GET   /SalesOrder/shipment-pdf
 ```
 
 ## Controller 範例
 
 ```csharp
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class WarehouseController(IWarehouseService _warehouseService) : Controller
 {
     [HttpPost("query")]

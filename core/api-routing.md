@@ -15,13 +15,15 @@
 Controller 名稱代表資源名稱，base route 固定為：
 
 ```csharp
-[Route("api/[controller]")]
+[Route("[controller]")]
 ```
+
+`api` 前綴由 K8s/Ingress 統一處理，Controller route 不包含 `api/`。
 
 禁止使用：
 
 ```csharp
-[Route("api/[controller]/[action]")]
+[Route("[controller]/[action]")]
 ```
 
 Action route 只放短動作、子資源或特殊流程，不重複 Controller 資源名稱，也不使用完整 method 名稱。
@@ -37,20 +39,20 @@ Action route 只放短動作、子資源或特殊流程，不重複 Controller �
 | 特殊檔案或文件 | 使用明確名詞，例如 `shipment-pdf` |
 
 ```text
-/api/SalesOrder/query
-/api/SalesOrder/{salesOrderId}/product-prices
-/api/SalesOrder/product-prices/query
-/api/SalesOrder/update
-/api/SalesOrder/status/update
-/api/SalesOrder/status/update-batch
-/api/SalesOrder/items/update
-/api/SalesOrder/erp/forward
-/api/SalesOrder/erp/forward-batch
-/api/SalesOrder/erp/cancel
-/api/SalesOrder/erp/cancel-batch
-/api/SalesOrder/erp/sync
-/api/SalesOrder/create
-/api/SalesOrder/lock
-/api/SalesOrder/unlock
-/api/SalesOrder/shipment-pdf
+/SalesOrder/query
+/SalesOrder/{salesOrderId}/product-prices
+/SalesOrder/product-prices/query
+/SalesOrder/update
+/SalesOrder/status/update
+/SalesOrder/status/update-batch
+/SalesOrder/items/update
+/SalesOrder/erp/forward
+/SalesOrder/erp/forward-batch
+/SalesOrder/erp/cancel
+/SalesOrder/erp/cancel-batch
+/SalesOrder/erp/sync
+/SalesOrder/create
+/SalesOrder/lock
+/SalesOrder/unlock
+/SalesOrder/shipment-pdf
 ```
