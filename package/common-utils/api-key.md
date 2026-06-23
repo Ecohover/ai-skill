@@ -24,6 +24,35 @@ Dachan-Api-Key-Secret: <secret>
 - `X-Dachan-Scheduler-Internal-Key`
 - `X-OMS-External-Order-Key`
 
+## 環境變數 / Secret 命名規則
+
+API Key 類環境變數（服務用來驗證呼叫方的 secret）統一採用：
+
+```text
+{INTERNAL|EXTERNAL}_{呼叫方系統}_API_KEY
+```
+
+- 方向（`INTERNAL` 或 `EXTERNAL`）放最前面。
+- `{呼叫方系統}` 為呼叫方系統名稱，全大寫，例如 `TMS`、`SCHEDULER`、`AIAGENT`。
+- 不要把被呼叫服務自身名稱（例如 `OMS_`）當前綴；該變數只存在於被呼叫服務自己的設定裡，前綴沒有資訊量。
+- 業務語意（例如 `ORDER`）不應蓋過呼叫方語意；命名要反映「誰在呼叫」，不是「呼叫做什麼業務」。
+
+範例（OMS 對外提供的 internal/external API key）：
+
+```text
+INTERNAL_TMS_API_KEY
+INTERNAL_SCHEDULER_API_KEY
+EXTERNAL_AIAGENT_API_KEY
+```
+
+不要使用方向放中間、或把被呼叫服務自身名稱當前綴的寫法：
+
+```text
+TMS_INTERNAL_API_KEY          # 方向放中間
+OMS_EXTERNAL_ORDER_API_KEY    # OMS_ 前綴多餘，且 ORDER 蓋過了呼叫方（AI Agent）語意
+OMS_SCHEDULER_INTERNAL_API_KEY
+```
+
 ## CommonUtils 與服務邊界
 
 CommonUtils 只提供：
